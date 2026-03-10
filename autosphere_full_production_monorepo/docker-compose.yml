@@ -1,0 +1,11 @@
+
+version: '3.8'
+services:
+  backend:
+    build: ./services/backend
+    ports:
+      - "3000:3000"
+  ai:
+    build: ./ai-services/risk-engine
+    ports:
+      - "8000:8000"

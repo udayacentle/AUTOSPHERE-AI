@@ -1,0 +1,83 @@
+.landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-with-login {
+  background: var(--login-bg, #e8ecf0);
+}
+
+[data-theme="dark"] .landing-with-login {
+  --login-bg: #0f1419;
+}
+
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-with-login .login-theme-btn {
+  position: static;
+  margin-left: auto;
+}
+
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.landing-logo .logo-icon {
+  color: var(--accent);
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.landing-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.landing-nav a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.landing-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem !important;
+  background: var(--accent) !important;
+  color: var(--bg-primary) !important;
+  border-radius: var(--radius);
+}
+
+.btn-primary:hover {
+  background: var(--accent-dim) !important;
+  color: var(--bg-primary) !important;
+}
+
+.landing-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
