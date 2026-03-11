@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useI18n } from '../../i18n/context'
 import './Auth.css'
 import './Login.css'
 
 const THEME_STORAGE_KEY = 'autosphere-theme'
 
 export default function Login() {
+  const { t } = useI18n()
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -30,20 +32,45 @@ export default function Login() {
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     const trimmed = usernameOrEmail.trim()
     if (!trimmed) {
-      setError('Enter username or email.')
+      setError(t('auth.errorUsernameRequired'))
       return
     }
     if (!password) {
-      setError('Enter password.')
+      setError(t('auth.errorPasswordRequired'))
       return
     }
-    navigate('/app')
+    setLoading(true)
+    try {
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed, password }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.message || t('auth.errorLoginFailed'))
+        return
+      }
+      if (data.token) {
+        try {
+          localStorage.setItem('autosphere-token', data.token)
+        } catch {
+          /* ignore */
+        }
+      }
+      navigate('/app')
+    } catch (err) {
+      setError(t('auth.errorServer'))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -52,8 +79,8 @@ export default function Login() {
         type="button"
         className="login-theme-btn"
         onClick={toggleTheme}
-        title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-        aria-label="Toggle theme"
+        title={t('auth.themeSwitch')}
+        aria-label={t('auth.themeSwitch')}
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
@@ -62,31 +89,31 @@ export default function Login() {
         <div className="login-brand">
           <span className="login-brand-logo">◇</span>
           <h2 className="login-brand-title">AutoSphere AI</h2>
-          <p className="login-brand-caption">Mobility & vehicle intelligence powered by AI. One platform for drivers, insurers, dealers, and more.</p>
+          <p className="login-brand-caption">{t('auth.brandCaption')}</p>
         </div>
         <div className="login-form-panel">
       <div className="auth-card login-card">
         <div className="login-header">
-          <h1>Login</h1>
-          <p>Sign in with your username or email. Fields marked with * are required.</p>
+          <h1>{t('auth.loginTitle')}</h1>
+          <p>{t('auth.loginSubtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form login-form" noValidate>
           <label className="login-label">
-            <span>Username or email <span className="required">*</span></span>
+            <span>{t('auth.usernameOrEmail')} <span className="required">{t('profile.required')}</span></span>
             <input
               type="text"
-              placeholder="Enter username or email"
+              placeholder={t('auth.enterUsernameOrEmail')}
               value={usernameOrEmail}
               onChange={(e) => { setUsernameOrEmail(e.target.value); setError('') }}
             />
           </label>
           <label className="login-label">
-            <span>Password <span className="required">*</span></span>
+            <span>{t('auth.password')} <span className="required">{t('profile.required')}</span></span>
             <div className="login-password-wrap">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password"
+                placeholder={t('auth.enterPassword')}
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError('') }}
               />
@@ -94,18 +121,18 @@ export default function Login() {
                 type="button"
                 className="login-password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 tabIndex={-1}
               >
                 <span className="icon-password-toggle">
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 </span>
               </button>
             </div>
           </label>
           {error && <p className="auth-error-msg">{error}</p>}
-          <button type="submit" className="auth-btn-submit login-btn-signin">
-            Sign in
+          <button type="submit" className="auth-btn-submit login-btn-signin" disabled={loading}>
+            {loading ? t('auth.signingIn') : t('auth.signIn')}
           </button>
 
           <div className="login-divider">
@@ -121,12 +148,12 @@ export default function Login() {
                 <path fill="#EA4335" d="M8.98 4.18c1.34 0 2.55.46 3.5 1.36l2.6-2.6A7.8 7.8 0 0 0 8.98 1a8 8 0 0 0-7.52 5.36l2.59 2.07a4.8 4.8 0 0 1 4.93-3.18z"/>
               </svg>
             </span>
-            Continue with Google
+            {t('auth.continueWithGoogle')}
           </button>
         </form>
 
         <p className="login-footer-link">
-          <Link to="/auth/signup">Create account (Signup)</Link>
+          <Link to="/auth/signup">{t('auth.createAccountSignup')}</Link>
         </p>
       </div>
         </div>

@@ -1,18 +1,53 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { PLATFORMS } from '../config/platforms'
+import { useI18n } from '../i18n/context'
 import { DRIVER_SCREENS } from '../config/driverScreens'
 import { INSURANCE_SCREENS } from '../config/insuranceScreens'
 import { DEALER_SCREENS } from '../config/dealerScreens'
+import { SALES_SCREENS } from '../config/salesScreens'
+import { TECHNICIAN_SCREENS } from '../config/technicianScreens'
+import { PROPERTY_SCREENS } from '../config/propertyScreens'
+import { GOVERNMENT_SCREENS } from '../config/governmentScreens'
+import { AI_ADMIN_SCREENS } from '../config/aiAdminScreens'
+import { ANALYTICS_SCREENS } from '../config/analyticsScreens'
+import { AI_ASSISTANT_SCREENS } from '../config/aiAssistantScreens'
 import './Layout.css'
 
-const HOVER_LEAVE_DELAY_MS = 120
 const THEME_STORAGE_KEY = 'autosphere-theme'
+
+function pathToNavKey(path: string): string {
+  return path.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+}
+
+function pathToScreenKey(path: string): string {
+  return path.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+}
+
+function getPlatformFromPath(pathname: string): string | null {
+  const match = pathname.match(/^\/app\/([^/]+)/)
+  return match && match[1] !== 'app' ? match[1] : null
+}
+
+const PLATFORM_SCREENS: Record<string, Array<{ id: number; path: string; title: string }>> = {
+  driver: DRIVER_SCREENS,
+  insurance: INSURANCE_SCREENS,
+  dealer: DEALER_SCREENS,
+  sales: SALES_SCREENS,
+  technician: TECHNICIAN_SCREENS,
+  property: PROPERTY_SCREENS,
+  government: GOVERNMENT_SCREENS,
+  'ai-admin': AI_ADMIN_SCREENS,
+  analytics: ANALYTICS_SCREENS,
+  'ai-assistant': AI_ASSISTANT_SCREENS,
+}
 
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [hoveredPath, setHoveredPath] = useState<string | null>(null)
+  const { t } = useI18n()
+  const currentPlatform = getPlatformFromPath(location.pathname)
+  const subsections = currentPlatform ? PLATFORM_SCREENS[currentPlatform] : null
 
   // On reload: behave like clicking the AutoSphere AI logo — go to welcome page
   useEffect(() => {
@@ -28,7 +63,6 @@ export default function Layout() {
       return 'dark'
     }
   })
-  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -41,18 +75,6 @@ export default function Layout() {
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
-  const handleMouseEnter = (path: string) => {
-    if (leaveTimeoutRef.current) {
-      clearTimeout(leaveTimeoutRef.current)
-      leaveTimeoutRef.current = null
-    }
-    setHoveredPath(path)
-  }
-
-  const handleMouseLeave = () => {
-    leaveTimeoutRef.current = setTimeout(() => setHoveredPath(null), HOVER_LEAVE_DELAY_MS)
-  }
-
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -63,69 +85,53 @@ export default function Layout() {
           </button>
         </div>
         <nav className="sidebar-nav">
-          {PLATFORMS.map(({ path, label, icon }) => (
-            <div
-              key={path}
-              className="nav-item-wrapper"
-              onMouseEnter={() => handleMouseEnter(path)}
-              onMouseLeave={handleMouseLeave}
-            >
+          {PLATFORMS.map(({ path, icon }) => (
+            <div key={path} className="nav-item-wrapper">
               <NavLink
                 to={`/app/${path}`}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               >
                 <span className="nav-icon">{icon}</span>
-                <span>{label}</span>
+                <span>{t(`nav.${pathToNavKey(path)}`)}</span>
               </NavLink>
-              {hoveredPath === path && (
-                <div className="nav-dropdown">
-                  <div className="nav-dropdown-title">{label} — Screens</div>
-                  <ul className="nav-dropdown-list">
-                    {path === 'driver'
-                      ? DRIVER_SCREENS.map(({ id, path: screenPath, title }) => (
-                          <li key={screenPath}>
-                            <Link to={`/app/driver/${screenPath}`} className="nav-dropdown-link">
-                              <span className="nav-dropdown-num">{id}</span>
-                              <span className="nav-dropdown-label">{title}</span>
-                            </Link>
-                          </li>
-                        ))
-                      : path === 'insurance'
-                      ? INSURANCE_SCREENS.map(({ id, path: screenPath, title }) => (
-                          <li key={screenPath}>
-                            <Link to={`/app/insurance/${screenPath}`} className="nav-dropdown-link">
-                              <span className="nav-dropdown-num">{id}</span>
-                              <span className="nav-dropdown-label">{title}</span>
-                            </Link>
-                          </li>
-                        ))
-                      : path === 'dealer'
-                      ? DEALER_SCREENS.map(({ id, path: screenPath, title }) => (
-                          <li key={screenPath}>
-                            <Link to={`/app/dealer/${screenPath}`} className="nav-dropdown-link">
-                              <span className="nav-dropdown-num">{id}</span>
-                              <span className="nav-dropdown-label">{title}</span>
-                            </Link>
-                          </li>
-                        ))
-                      : PLATFORMS.find((p) => p.path === path)!.screens.map((screen, i) => (
-                          <li key={screen}>
-                            <span className="nav-dropdown-num">{i + 1}</span>
-                            <span className="nav-dropdown-label">{screen}</span>
-                          </li>
-                        ))}
-                  </ul>
-                </div>
-              )}
             </div>
           ))}
         </nav>
         <div className="sidebar-footer">
           <button className="btn-logout" onClick={() => navigate('/auth/login')}>
-            Exit to Home
+            {t('nav.exitToHome')}
           </button>
         </div>
       </aside>
+      {subsections && currentPlatform && (
+        <aside className="sidebar-subsections">
+          <div className="sidebar-subsections-header">
+            <h2>{t(`nav.${pathToNavKey(currentPlatform)}`)} — {t('nav.screens')}</h2>
+            <p>{subsections.length} {t('common.sections')}</p>
+          </div>
+          <nav className="sidebar-subsections-nav">
+            {subsections.map(({ id, path: screenPath, title }) => {
+              const href = currentPlatform === 'driver' && screenPath === 'authentication'
+                ? '/app/driver/authentication'
+                : `/app/${currentPlatform}/${screenPath}`
+              const active = location.pathname === href
+              const screenKey = `screens.${currentPlatform}.${pathToScreenKey(screenPath)}`
+              const translated = t(screenKey)
+              const label = translated && !translated.startsWith('screens.') ? translated : title.split(' (')[0].trim()
+              return (
+                <Link
+                  key={screenPath}
+                  to={href}
+                  className={`sidebar-subsections-link ${active ? 'active' : ''}`}
+                >
+                  <span className="sidebar-subsections-num">{id}</span>
+                  <span className="sidebar-subsections-label">{label}</span>
+                </Link>
+              )
+            })}
+          </nav>
+        </aside>
+      )}
       <main className="main">
         <header className="topbar">
           <div className="topbar-spacer" />

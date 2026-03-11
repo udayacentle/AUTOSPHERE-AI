@@ -72,6 +72,18 @@ button {
   cursor: pointer;
 }
 
+.btn-refresh {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+}
+.btn-refresh:hover {
+  border-color: var(--accent);
+}
+
 .page {
   padding: 1.5rem 2rem;
   max-width: 1400px;

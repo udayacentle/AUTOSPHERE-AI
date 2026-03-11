@@ -1,0 +1,187 @@
+/* Profile / Onboarding form – full width so fields extend to the end of the screen */
+
+.profile-form {
+  max-width: 100%;
+  width: 100%;
+}
+
+.profile-form .page-header {
+  margin-bottom: 1.5rem;
+}
+
+.profile-form .page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.profile-form label .required {
+  display: inline;
+  color: #dc2626 !important;
+}
+
+.profile-form input,
+.profile-form select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.profile-form input:focus,
+.profile-form select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.profile-form .field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.profile-form .field-group {
+  margin-bottom: 1rem;
+}
+
+.profile-form .field-group label {
+  margin-bottom: 0.35rem;
+}
+
+.profile-form .phone-inputs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-form .phone-inputs select {
+  width: auto;
+  min-width: 120px;
+  margin-bottom: 0;
+}
+
+.profile-form .phone-inputs input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.profile-section {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+}
+
+.profile-form .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.profile-form .checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.profile-form .checkbox-row label {
+  margin: 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.profile-form .btn-save {
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.profile-form .btn-save:hover {
+  background: #1d4ed8;
+}
+
+.profile-form .btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Success modal */
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.profile-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.profile-modal h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.profile-modal p {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.profile-modal .btn-ok {
+  padding: 0.5rem 1.25rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.profile-modal .btn-ok:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 520px) {
+  .profile-form .field-row {
+    grid-template-columns: 1fr;
+  }
+}

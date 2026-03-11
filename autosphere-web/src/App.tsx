@@ -4,20 +4,21 @@ import Layout from './components/Layout'
 import DriverLayout from './components/DriverLayout'
 import InsuranceLayout from './components/InsuranceLayout'
 import DealerLayout from './components/DealerLayout'
+import SalesLayout from './components/SalesLayout'
+import TechnicianLayout from './components/TechnicianLayout'
+import PropertyLayout from './components/PropertyLayout'
+import GovernmentLayout from './components/GovernmentLayout'
+import AIAdminLayout from './components/AIAdminLayout'
+import AnalyticsLayout from './components/AnalyticsLayout'
+import AIAssistantLayout from './components/AIAssistantLayout'
 import Landing from './pages/Landing'
 import Welcome from './pages/Welcome'
+import PlatformHome from './pages/PlatformHome'
 import Splash from './pages/auth/Splash'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import OTP from './pages/auth/OTP'
 import BiometricSetup from './pages/auth/BiometricSetup'
-import Sales from './pages/platforms/Sales'
-import Technician from './pages/platforms/Technician'
-import Property from './pages/platforms/Property'
-import Government from './pages/platforms/Government'
-import AIAdmin from './pages/platforms/AIAdmin'
-import Analytics from './pages/platforms/Analytics'
-import AIAssistant from './pages/platforms/AIAssistant'
 
 // Lazy-load driver screens so initial load doesn't pull in all 26 components
 const Authentication = lazy(() => import('./pages/platforms/driver/Authentication'))
@@ -78,6 +79,89 @@ const CommissionManagement = lazy(() => import('./pages/platforms/dealer/Commiss
 const FinanceIntegrationPanel = lazy(() => import('./pages/platforms/dealer/FinanceIntegrationPanel'))
 const MarketTrendInsights = lazy(() => import('./pages/platforms/dealer/MarketTrendInsights'))
 
+// Lazy-load sales screens
+const SalesDashboard = lazy(() => import('./pages/platforms/sales/SalesDashboard'))
+const LeadAssignmentScoring = lazy(() => import('./pages/platforms/sales/LeadAssignmentScoring'))
+const CustomerInteractionLogs = lazy(() => import('./pages/platforms/sales/CustomerInteractionLogs'))
+const PerformanceMetrics = lazy(() => import('./pages/platforms/sales/PerformanceMetrics'))
+const CommissionTracker = lazy(() => import('./pages/platforms/sales/CommissionTracker'))
+const AISalesSuggestions = lazy(() => import('./pages/platforms/sales/AISalesSuggestions'))
+const FollowUpScheduler = lazy(() => import('./pages/platforms/sales/FollowUpScheduler'))
+const TargetAchievementTracker = lazy(() => import('./pages/platforms/sales/TargetAchievementTracker'))
+
+// Lazy-load technician screens
+const TechnicianLogin = lazy(() => import('./pages/platforms/technician/TechnicianLogin'))
+const JobQueueDashboard = lazy(() => import('./pages/platforms/technician/JobQueueDashboard'))
+const VehicleDiagnosticDigitalTwin = lazy(() => import('./pages/platforms/technician/VehicleDiagnosticDigitalTwin'))
+const AIFaultDetection = lazy(() => import('./pages/platforms/technician/AIFaultDetection'))
+const RepairRecommendations = lazy(() => import('./pages/platforms/technician/RepairRecommendations'))
+const PartsPredictionEngine = lazy(() => import('./pages/platforms/technician/PartsPredictionEngine'))
+const RepairWorkflowTracker = lazy(() => import('./pages/platforms/technician/RepairWorkflowTracker'))
+const ARAssistanceView = lazy(() => import('./pages/platforms/technician/ARAssistanceView'))
+const RepairTimeEstimator = lazy(() => import('./pages/platforms/technician/RepairTimeEstimator'))
+const TechnicianPerformanceScore = lazy(() => import('./pages/platforms/technician/TechnicianPerformanceScore'))
+const EarningsSummary = lazy(() => import('./pages/platforms/technician/EarningsSummary'))
+
+// Lazy-load property screens
+const PropertyAdminLogin = lazy(() => import('./pages/platforms/property/PropertyAdminLogin'))
+const PropertyDashboard = lazy(() => import('./pages/platforms/property/PropertyDashboard'))
+const ParkingUtilizationHeatmap = lazy(() => import('./pages/platforms/property/ParkingUtilizationHeatmap'))
+const SlotManagement = lazy(() => import('./pages/platforms/property/SlotManagement'))
+const PropertyDynamicPricingEngine = lazy(() => import('./pages/platforms/property/DynamicPricingEngine'))
+const EVChargingControlPanel = lazy(() => import('./pages/platforms/property/EVChargingControlPanel'))
+const LoadBalancingMonitor = lazy(() => import('./pages/platforms/property/LoadBalancingMonitor'))
+const RevenueAnalyticsDashboard = lazy(() => import('./pages/platforms/property/RevenueAnalyticsDashboard'))
+const PeakTrafficPrediction = lazy(() => import('./pages/platforms/property/PeakTrafficPrediction'))
+const AccessControlManagement = lazy(() => import('./pages/platforms/property/AccessControlManagement'))
+const CarbonImpactDashboard = lazy(() => import('./pages/platforms/property/CarbonImpactDashboard'))
+
+// Lazy-load government screens
+const RegulatorLogin = lazy(() => import('./pages/platforms/government/RegulatorLogin'))
+const NationalVehicleOverview = lazy(() => import('./pages/platforms/government/NationalVehicleOverview'))
+const ComplianceMonitoringDashboard = lazy(() => import('./pages/platforms/government/ComplianceMonitoringDashboard'))
+const EmissionMonitoringPanel = lazy(() => import('./pages/platforms/government/EmissionMonitoringPanel'))
+const TrafficDensityHeatmap = lazy(() => import('./pages/platforms/government/TrafficDensityHeatmap'))
+const AccidentClusterPrediction = lazy(() => import('./pages/platforms/government/AccidentClusterPrediction'))
+const RiskZoneAnalytics = lazy(() => import('./pages/platforms/government/RiskZoneAnalytics'))
+const PolicySimulationEngine = lazy(() => import('./pages/platforms/government/PolicySimulationEngine'))
+const RecallMonitoring = lazy(() => import('./pages/platforms/government/RecallMonitoring'))
+const FraudPatternAnalytics = lazy(() => import('./pages/platforms/government/FraudPatternAnalytics'))
+const RegionalReports = lazy(() => import('./pages/platforms/government/RegionalReports'))
+const ExportReportingTools = lazy(() => import('./pages/platforms/government/ExportReportingTools'))
+
+// Lazy-load AI Admin screens
+const SuperAdminDashboard = lazy(() => import('./pages/platforms/ai-admin/SuperAdminDashboard'))
+const UserRoleManagement = lazy(() => import('./pages/platforms/ai-admin/UserRoleManagement'))
+const AIModelMonitoring = lazy(() => import('./pages/platforms/ai-admin/AIModelMonitoring'))
+const ModelAccuracyDashboard = lazy(() => import('./pages/platforms/ai-admin/ModelAccuracyDashboard'))
+const FederatedLearningMonitor = lazy(() => import('./pages/platforms/ai-admin/FederatedLearningMonitor'))
+const DataFlowVisualization = lazy(() => import('./pages/platforms/ai-admin/DataFlowVisualization'))
+const APIGatewayMonitor = lazy(() => import('./pages/platforms/ai-admin/APIGatewayMonitor'))
+const SystemHealthDashboard = lazy(() => import('./pages/platforms/ai-admin/SystemHealthDashboard'))
+const IncidentManagement = lazy(() => import('./pages/platforms/ai-admin/IncidentManagement'))
+const AuditLogs = lazy(() => import('./pages/platforms/ai-admin/AuditLogs'))
+const SecurityControlCenter = lazy(() => import('./pages/platforms/ai-admin/SecurityControlCenter'))
+const BillingSubscriptionManagement = lazy(() => import('./pages/platforms/ai-admin/BillingSubscriptionManagement'))
+
+// Lazy-load analytics (cross-platform) screens
+const GlobalPerformanceDashboard = lazy(() => import('./pages/platforms/analytics/GlobalPerformanceDashboard'))
+const MobilityScoreDistribution = lazy(() => import('./pages/platforms/analytics/MobilityScoreDistribution'))
+const VehicleHealthTrends = lazy(() => import('./pages/platforms/analytics/VehicleHealthTrends'))
+const InsuranceRiskTrends = lazy(() => import('./pages/platforms/analytics/InsuranceRiskTrends'))
+const DealerSalesTrends = lazy(() => import('./pages/platforms/analytics/DealerSalesTrends'))
+const TechnicianPerformanceTrends = lazy(() => import('./pages/platforms/analytics/TechnicianPerformanceTrends'))
+const ParkingRevenueTrends = lazy(() => import('./pages/platforms/analytics/ParkingRevenueTrends'))
+const EmissionAnalytics = lazy(() => import('./pages/platforms/analytics/EmissionAnalytics'))
+const PredictiveForecastCharts = lazy(() => import('./pages/platforms/analytics/PredictiveForecastCharts'))
+const AIModelComparisonDashboard = lazy(() => import('./pages/platforms/analytics/AIModelComparisonDashboard'))
+
+// Lazy-load AI Assistant screens
+const AIChatInterface = lazy(() => import('./pages/platforms/ai-assistant/AIChatInterface'))
+const VoiceAssistantScreen = lazy(() => import('./pages/platforms/ai-assistant/VoiceAssistantScreen'))
+const PredictiveSuggestionsPanel = lazy(() => import('./pages/platforms/ai-assistant/PredictiveSuggestionsPanel'))
+const ContextAwareActionSuggestions = lazy(() => import('./pages/platforms/ai-assistant/ContextAwareActionSuggestions'))
+const AIExplanationScreen = lazy(() => import('./pages/platforms/ai-assistant/AIExplanationScreen'))
+
 function LoadingFallback() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -89,7 +173,7 @@ function LoadingFallback() {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/app" replace />} />
+      <Route path="/" element={<Navigate to="/auth/login" replace />} />
       <Route path="/landing" element={<Landing />} />
       <Route path="/login" element={<Navigate to="/auth/login" replace />} />
       <Route path="/auth" element={<Navigate to="/auth/splash" replace />} />
@@ -101,7 +185,7 @@ function App() {
       <Route path="/app" element={<Layout />}>
         <Route index element={<Welcome />} />
         <Route path="driver" element={<DriverLayout />}>
-          <Route index element={<Navigate to="/app/driver/dashboard" replace />} />
+          <Route index element={<PlatformHome />} />
           <Route path="authentication" element={<Suspense fallback={<LoadingFallback />}><Authentication /></Suspense>} />
           <Route path="onboarding" element={<Suspense fallback={<LoadingFallback />}><Onboarding /></Suspense>} />
           <Route path="dashboard" element={<Suspense fallback={<LoadingFallback />}><Dashboard /></Suspense>} />
@@ -130,7 +214,7 @@ function App() {
           <Route path="settings" element={<Suspense fallback={<LoadingFallback />}><Settings /></Suspense>} />
         </Route>
         <Route path="insurance" element={<InsuranceLayout />}>
-          <Route index element={<Navigate to="/app/insurance/portfolio-overview-dashboard" replace />} />
+          <Route index element={<PlatformHome />} />
           <Route path="insurance-admin-login" element={<Suspense fallback={<LoadingFallback />}><InsuranceAdminLogin /></Suspense>} />
           <Route path="portfolio-overview-dashboard" element={<Suspense fallback={<LoadingFallback />}><PortfolioOverviewDashboard /></Suspense>} />
           <Route path="real-time-risk-monitor" element={<Suspense fallback={<LoadingFallback />}><RealTimeRiskMonitor /></Suspense>} />
@@ -146,7 +230,7 @@ function App() {
           <Route path="api-integration-settings" element={<Suspense fallback={<LoadingFallback />}><APIIntegrationSettings /></Suspense>} />
         </Route>
         <Route path="dealer" element={<DealerLayout />}>
-          <Route index element={<Navigate to="/app/dealer/dealer-login-dashboard" replace />} />
+          <Route index element={<PlatformHome />} />
           <Route path="dealer-login-dashboard" element={<Suspense fallback={<LoadingFallback />}><DealerLoginDashboard /></Suspense>} />
           <Route path="inventory-management" element={<Suspense fallback={<LoadingFallback />}><InventoryManagement /></Suspense>} />
           <Route path="add-edit-vehicle" element={<Suspense fallback={<LoadingFallback />}><AddEditVehicle /></Suspense>} />
@@ -162,13 +246,96 @@ function App() {
           <Route path="finance-integration-panel" element={<Suspense fallback={<LoadingFallback />}><FinanceIntegrationPanel /></Suspense>} />
           <Route path="market-trend-insights" element={<Suspense fallback={<LoadingFallback />}><MarketTrendInsights /></Suspense>} />
         </Route>
-        <Route path="sales" element={<Sales />} />
-        <Route path="technician" element={<Technician />} />
-        <Route path="property" element={<Property />} />
-        <Route path="government" element={<Government />} />
-        <Route path="ai-admin" element={<AIAdmin />} />
-        <Route path="analytics" element={<Analytics />} />
-        <Route path="ai-assistant" element={<AIAssistant />} />
+        <Route path="sales" element={<SalesLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="sales-dashboard" element={<Suspense fallback={<LoadingFallback />}><SalesDashboard /></Suspense>} />
+          <Route path="lead-assignment-scoring" element={<Suspense fallback={<LoadingFallback />}><LeadAssignmentScoring /></Suspense>} />
+          <Route path="customer-interaction-logs" element={<Suspense fallback={<LoadingFallback />}><CustomerInteractionLogs /></Suspense>} />
+          <Route path="performance-metrics" element={<Suspense fallback={<LoadingFallback />}><PerformanceMetrics /></Suspense>} />
+          <Route path="commission-tracker" element={<Suspense fallback={<LoadingFallback />}><CommissionTracker /></Suspense>} />
+          <Route path="ai-sales-suggestions" element={<Suspense fallback={<LoadingFallback />}><AISalesSuggestions /></Suspense>} />
+          <Route path="follow-up-scheduler" element={<Suspense fallback={<LoadingFallback />}><FollowUpScheduler /></Suspense>} />
+          <Route path="target-achievement-tracker" element={<Suspense fallback={<LoadingFallback />}><TargetAchievementTracker /></Suspense>} />
+        </Route>
+        <Route path="technician" element={<TechnicianLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="technician-login" element={<Suspense fallback={<LoadingFallback />}><TechnicianLogin /></Suspense>} />
+          <Route path="job-queue-dashboard" element={<Suspense fallback={<LoadingFallback />}><JobQueueDashboard /></Suspense>} />
+          <Route path="vehicle-diagnostic-digital-twin" element={<Suspense fallback={<LoadingFallback />}><VehicleDiagnosticDigitalTwin /></Suspense>} />
+          <Route path="ai-fault-detection" element={<Suspense fallback={<LoadingFallback />}><AIFaultDetection /></Suspense>} />
+          <Route path="repair-recommendations" element={<Suspense fallback={<LoadingFallback />}><RepairRecommendations /></Suspense>} />
+          <Route path="parts-prediction-engine" element={<Suspense fallback={<LoadingFallback />}><PartsPredictionEngine /></Suspense>} />
+          <Route path="repair-workflow-tracker" element={<Suspense fallback={<LoadingFallback />}><RepairWorkflowTracker /></Suspense>} />
+          <Route path="ar-assistance-view" element={<Suspense fallback={<LoadingFallback />}><ARAssistanceView /></Suspense>} />
+          <Route path="repair-time-estimator" element={<Suspense fallback={<LoadingFallback />}><RepairTimeEstimator /></Suspense>} />
+          <Route path="technician-performance-score" element={<Suspense fallback={<LoadingFallback />}><TechnicianPerformanceScore /></Suspense>} />
+          <Route path="earnings-summary" element={<Suspense fallback={<LoadingFallback />}><EarningsSummary /></Suspense>} />
+        </Route>
+        <Route path="property" element={<PropertyLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="property-admin-login" element={<Suspense fallback={<LoadingFallback />}><PropertyAdminLogin /></Suspense>} />
+          <Route path="property-dashboard" element={<Suspense fallback={<LoadingFallback />}><PropertyDashboard /></Suspense>} />
+          <Route path="parking-utilization-heatmap" element={<Suspense fallback={<LoadingFallback />}><ParkingUtilizationHeatmap /></Suspense>} />
+          <Route path="slot-management" element={<Suspense fallback={<LoadingFallback />}><SlotManagement /></Suspense>} />
+          <Route path="dynamic-pricing-engine" element={<Suspense fallback={<LoadingFallback />}><PropertyDynamicPricingEngine /></Suspense>} />
+          <Route path="ev-charging-control-panel" element={<Suspense fallback={<LoadingFallback />}><EVChargingControlPanel /></Suspense>} />
+          <Route path="load-balancing-monitor" element={<Suspense fallback={<LoadingFallback />}><LoadBalancingMonitor /></Suspense>} />
+          <Route path="revenue-analytics-dashboard" element={<Suspense fallback={<LoadingFallback />}><RevenueAnalyticsDashboard /></Suspense>} />
+          <Route path="peak-traffic-prediction" element={<Suspense fallback={<LoadingFallback />}><PeakTrafficPrediction /></Suspense>} />
+          <Route path="access-control-management" element={<Suspense fallback={<LoadingFallback />}><AccessControlManagement /></Suspense>} />
+          <Route path="carbon-impact-dashboard" element={<Suspense fallback={<LoadingFallback />}><CarbonImpactDashboard /></Suspense>} />
+        </Route>
+        <Route path="government" element={<GovernmentLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="regulator-login" element={<Suspense fallback={<LoadingFallback />}><RegulatorLogin /></Suspense>} />
+          <Route path="national-vehicle-overview" element={<Suspense fallback={<LoadingFallback />}><NationalVehicleOverview /></Suspense>} />
+          <Route path="compliance-monitoring-dashboard" element={<Suspense fallback={<LoadingFallback />}><ComplianceMonitoringDashboard /></Suspense>} />
+          <Route path="emission-monitoring-panel" element={<Suspense fallback={<LoadingFallback />}><EmissionMonitoringPanel /></Suspense>} />
+          <Route path="traffic-density-heatmap" element={<Suspense fallback={<LoadingFallback />}><TrafficDensityHeatmap /></Suspense>} />
+          <Route path="accident-cluster-prediction" element={<Suspense fallback={<LoadingFallback />}><AccidentClusterPrediction /></Suspense>} />
+          <Route path="risk-zone-analytics" element={<Suspense fallback={<LoadingFallback />}><RiskZoneAnalytics /></Suspense>} />
+          <Route path="policy-simulation-engine" element={<Suspense fallback={<LoadingFallback />}><PolicySimulationEngine /></Suspense>} />
+          <Route path="recall-monitoring" element={<Suspense fallback={<LoadingFallback />}><RecallMonitoring /></Suspense>} />
+          <Route path="fraud-pattern-analytics" element={<Suspense fallback={<LoadingFallback />}><FraudPatternAnalytics /></Suspense>} />
+          <Route path="regional-reports" element={<Suspense fallback={<LoadingFallback />}><RegionalReports /></Suspense>} />
+          <Route path="export-reporting-tools" element={<Suspense fallback={<LoadingFallback />}><ExportReportingTools /></Suspense>} />
+        </Route>
+        <Route path="ai-admin" element={<AIAdminLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="super-admin-dashboard" element={<Suspense fallback={<LoadingFallback />}><SuperAdminDashboard /></Suspense>} />
+          <Route path="user-role-management" element={<Suspense fallback={<LoadingFallback />}><UserRoleManagement /></Suspense>} />
+          <Route path="ai-model-monitoring" element={<Suspense fallback={<LoadingFallback />}><AIModelMonitoring /></Suspense>} />
+          <Route path="model-accuracy-dashboard" element={<Suspense fallback={<LoadingFallback />}><ModelAccuracyDashboard /></Suspense>} />
+          <Route path="federated-learning-monitor" element={<Suspense fallback={<LoadingFallback />}><FederatedLearningMonitor /></Suspense>} />
+          <Route path="data-flow-visualization" element={<Suspense fallback={<LoadingFallback />}><DataFlowVisualization /></Suspense>} />
+          <Route path="api-gateway-monitor" element={<Suspense fallback={<LoadingFallback />}><APIGatewayMonitor /></Suspense>} />
+          <Route path="system-health-dashboard" element={<Suspense fallback={<LoadingFallback />}><SystemHealthDashboard /></Suspense>} />
+          <Route path="incident-management" element={<Suspense fallback={<LoadingFallback />}><IncidentManagement /></Suspense>} />
+          <Route path="audit-logs" element={<Suspense fallback={<LoadingFallback />}><AuditLogs /></Suspense>} />
+          <Route path="security-control-center" element={<Suspense fallback={<LoadingFallback />}><SecurityControlCenter /></Suspense>} />
+          <Route path="billing-subscription-management" element={<Suspense fallback={<LoadingFallback />}><BillingSubscriptionManagement /></Suspense>} />
+        </Route>
+        <Route path="analytics" element={<AnalyticsLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="global-performance-dashboard" element={<Suspense fallback={<LoadingFallback />}><GlobalPerformanceDashboard /></Suspense>} />
+          <Route path="mobility-score-distribution" element={<Suspense fallback={<LoadingFallback />}><MobilityScoreDistribution /></Suspense>} />
+          <Route path="vehicle-health-trends" element={<Suspense fallback={<LoadingFallback />}><VehicleHealthTrends /></Suspense>} />
+          <Route path="insurance-risk-trends" element={<Suspense fallback={<LoadingFallback />}><InsuranceRiskTrends /></Suspense>} />
+          <Route path="dealer-sales-trends" element={<Suspense fallback={<LoadingFallback />}><DealerSalesTrends /></Suspense>} />
+          <Route path="technician-performance-trends" element={<Suspense fallback={<LoadingFallback />}><TechnicianPerformanceTrends /></Suspense>} />
+          <Route path="parking-revenue-trends" element={<Suspense fallback={<LoadingFallback />}><ParkingRevenueTrends /></Suspense>} />
+          <Route path="emission-analytics" element={<Suspense fallback={<LoadingFallback />}><EmissionAnalytics /></Suspense>} />
+          <Route path="predictive-forecast-charts" element={<Suspense fallback={<LoadingFallback />}><PredictiveForecastCharts /></Suspense>} />
+          <Route path="ai-model-comparison-dashboard" element={<Suspense fallback={<LoadingFallback />}><AIModelComparisonDashboard /></Suspense>} />
+        </Route>
+        <Route path="ai-assistant" element={<AIAssistantLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="ai-chat-interface" element={<Suspense fallback={<LoadingFallback />}><AIChatInterface /></Suspense>} />
+          <Route path="voice-assistant-screen" element={<Suspense fallback={<LoadingFallback />}><VoiceAssistantScreen /></Suspense>} />
+          <Route path="predictive-suggestions-panel" element={<Suspense fallback={<LoadingFallback />}><PredictiveSuggestionsPanel /></Suspense>} />
+          <Route path="context-aware-action-suggestions" element={<Suspense fallback={<LoadingFallback />}><ContextAwareActionSuggestions /></Suspense>} />
+          <Route path="ai-explanation-screen" element={<Suspense fallback={<LoadingFallback />}><AIExplanationScreen /></Suspense>} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

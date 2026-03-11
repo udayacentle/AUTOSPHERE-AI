@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
-import { DEALER_SCREENS } from '../config/dealerScreens'
+import { Outlet, useLocation } from 'react-router-dom'
 import './DriverLayout.css'
 
 export default function DealerLayout() {
@@ -9,40 +8,31 @@ export default function DealerLayout() {
 
   useEffect(() => {
     const scrollToTop = () => {
+      window.scrollTo(0, 0)
       mainRef.current?.scrollTo(0, 0)
-      const parentScroll = mainRef.current?.closest('.main-content') as HTMLElement | null
-      parentScroll?.scrollTo(0, 0)
+      let el: HTMLElement | null = mainRef.current
+      while (el) {
+        if (el.scrollTop !== undefined && el.scrollTop > 0) el.scrollTo(0, 0)
+        el = el.parentElement
+      }
     }
+    scrollToTop()
     const id = requestAnimationFrame(() => {
       scrollToTop()
       requestAnimationFrame(scrollToTop)
     })
-    return () => cancelAnimationFrame(id)
+    const t1 = setTimeout(scrollToTop, 50)
+    const t2 = setTimeout(scrollToTop, 200)
+    return () => {
+      cancelAnimationFrame(id)
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
   }, [pathname])
 
   return (
-    <div className="driver-layout">
-      <aside className="driver-sidebar">
-        <div className="driver-sidebar-header">
-          <h2>Dealer Screens</h2>
-          <p>14 sections</p>
-        </div>
-        <nav className="driver-nav">
-          {DEALER_SCREENS.map(({ id, path, title }) => (
-            <NavLink
-              key={path}
-              to={`/app/dealer/${path}`}
-              className={({ isActive }) => `driver-nav-item ${isActive ? 'active' : ''}`}
-            >
-              <span className="driver-nav-num">{id}</span>
-              <span>{title.split(' (')[0].trim()}</span>
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
-      <div className="driver-main" ref={mainRef}>
-        <Outlet />
-      </div>
+    <div className="driver-main platform-content" ref={mainRef}>
+      <Outlet />
     </div>
   )
 }
