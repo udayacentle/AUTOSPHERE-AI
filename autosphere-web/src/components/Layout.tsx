@@ -12,6 +12,7 @@ import { GOVERNMENT_SCREENS } from '../config/governmentScreens'
 import { AI_ADMIN_SCREENS } from '../config/aiAdminScreens'
 import { ANALYTICS_SCREENS } from '../config/analyticsScreens'
 import { AI_ASSISTANT_SCREENS } from '../config/aiAssistantScreens'
+import { FLEET_SCREENS } from '../config/fleetScreens'
 import './Layout.css'
 
 const THEME_STORAGE_KEY = 'autosphere-theme'
@@ -40,6 +41,7 @@ const PLATFORM_SCREENS: Record<string, Array<{ id: number; path: string; title: 
   'ai-admin': AI_ADMIN_SCREENS,
   analytics: ANALYTICS_SCREENS,
   'ai-assistant': AI_ASSISTANT_SCREENS,
+  fleet: FLEET_SCREENS,
 }
 
 export default function Layout() {
@@ -72,6 +74,15 @@ export default function Layout() {
       /* ignore */
     }
   }, [theme])
+
+  useEffect(() => {
+    const onThemeChange = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      if (next === 'dark' || next === 'light') setTheme(next)
+    }
+    window.addEventListener('autosphere-theme-change', onThemeChange)
+    return () => window.removeEventListener('autosphere-theme-change', onThemeChange)
+  }, [])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 

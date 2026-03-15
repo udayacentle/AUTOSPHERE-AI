@@ -198,4 +198,17 @@ export const PLATFORMS: Platform[] = [
       'AI Explanation Screen (Why This Score?)',
     ],
   },
+  {
+    path: 'fleet',
+    label: 'Fleet',
+    icon: '🚛',
+    screens: [
+      'Fleet Dashboard',
+      'Vehicles',
+      'Live Tracking',
+      'Drivers & Assignments',
+      'Maintenance & Service',
+      'Reports & Analytics',
+    ],
+  },
 ]

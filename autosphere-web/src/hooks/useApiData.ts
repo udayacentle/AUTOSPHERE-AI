@@ -30,7 +30,10 @@ export function useApiData<T>(
       const result = await fetchFnRef.current()
       setData(result)
     } catch (e) {
-      if (!background) setError(e instanceof Error ? e.message : 'Failed to load')
+      if (!background) {
+        const msg = e instanceof Error ? e.message : 'Failed to load'
+        setError(msg.includes('<') || msg.includes('DOCTYPE') ? 'Unable to load data' : msg)
+      }
     } finally {
       if (!background) setLoading(false)
     }

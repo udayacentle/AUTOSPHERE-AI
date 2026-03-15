@@ -21,13 +21,25 @@ The app implements the structure from *AutoSphere_AI_Complete_Screen_Inventory.d
 
 ## Run locally
 
+**1. Start the backend** (from project root):
+
+```bash
+cd autosphere_full_production_monorepo/services/backend
+npm install
+npm start
+```
+
+Backend runs at **http://localhost:3000**. Leave it running.
+
+**2. Start the web app** (in a second terminal):
+
 ```bash
 cd autosphere-web
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** (or the URL shown in the terminal).
+Open **http://localhost:5173** (or the URL shown in the terminal). Login: **http://localhost:5173/auth/login**
 
 ## Build
 

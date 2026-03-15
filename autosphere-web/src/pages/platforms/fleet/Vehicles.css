@@ -1,0 +1,122 @@
+.fleet-add-vehicle {
+  margin-bottom: 1.5rem;
+  max-width: 420px;
+}
+
+.fleet-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.fleet-add-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.fleet-add-form input,
+.fleet-add-form select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.fleet-add-form input:focus,
+.fleet-add-form select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.fleet-add-error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fleet-vehicle-list {
+  max-width: 560px;
+}
+
+.fleet-vehicles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.fleet-vehicle-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+  font-size: 0.95rem;
+}
+
+.fleet-vehicle-item:last-child {
+  border-bottom: none;
+}
+
+.fleet-vehicle-plate {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fleet-vehicle-model {
+  color: var(--text-secondary);
+}
+
+.fleet-vehicle-status {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.fleet-status-active {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success, #22c55e);
+}
+
+.fleet-status-maintenance {
+  background: rgba(234, 179, 8, 0.2);
+  color: var(--warning, #eab308);
+}
+
+.fleet-status-inactive {
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--text-secondary);
+}
+
+.fleet-empty {
+  color: var(--text-secondary);
+  padding: 1rem 0;
+}

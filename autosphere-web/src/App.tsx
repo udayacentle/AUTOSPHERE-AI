@@ -11,6 +11,7 @@ import GovernmentLayout from './components/GovernmentLayout'
 import AIAdminLayout from './components/AIAdminLayout'
 import AnalyticsLayout from './components/AnalyticsLayout'
 import AIAssistantLayout from './components/AIAssistantLayout'
+import FleetLayout from './components/FleetLayout'
 import Landing from './pages/Landing'
 import Welcome from './pages/Welcome'
 import PlatformHome from './pages/PlatformHome'
@@ -161,6 +162,14 @@ const VoiceAssistantScreen = lazy(() => import('./pages/platforms/ai-assistant/V
 const PredictiveSuggestionsPanel = lazy(() => import('./pages/platforms/ai-assistant/PredictiveSuggestionsPanel'))
 const ContextAwareActionSuggestions = lazy(() => import('./pages/platforms/ai-assistant/ContextAwareActionSuggestions'))
 const AIExplanationScreen = lazy(() => import('./pages/platforms/ai-assistant/AIExplanationScreen'))
+
+// Lazy-load fleet screens
+const FleetDashboard = lazy(() => import('./pages/platforms/fleet/FleetDashboard'))
+const FleetVehicles = lazy(() => import('./pages/platforms/fleet/Vehicles'))
+const FleetTracking = lazy(() => import('./pages/platforms/fleet/Tracking'))
+const FleetDrivers = lazy(() => import('./pages/platforms/fleet/Drivers'))
+const FleetMaintenance = lazy(() => import('./pages/platforms/fleet/Maintenance'))
+const FleetReports = lazy(() => import('./pages/platforms/fleet/Reports'))
 
 function LoadingFallback() {
   return (
@@ -335,6 +344,15 @@ function App() {
           <Route path="predictive-suggestions-panel" element={<Suspense fallback={<LoadingFallback />}><PredictiveSuggestionsPanel /></Suspense>} />
           <Route path="context-aware-action-suggestions" element={<Suspense fallback={<LoadingFallback />}><ContextAwareActionSuggestions /></Suspense>} />
           <Route path="ai-explanation-screen" element={<Suspense fallback={<LoadingFallback />}><AIExplanationScreen /></Suspense>} />
+        </Route>
+        <Route path="fleet" element={<FleetLayout />}>
+          <Route index element={<PlatformHome />} />
+          <Route path="dashboard" element={<Suspense fallback={<LoadingFallback />}><FleetDashboard /></Suspense>} />
+          <Route path="vehicles" element={<Suspense fallback={<LoadingFallback />}><FleetVehicles /></Suspense>} />
+          <Route path="tracking" element={<Suspense fallback={<LoadingFallback />}><FleetTracking /></Suspense>} />
+          <Route path="drivers" element={<Suspense fallback={<LoadingFallback />}><FleetDrivers /></Suspense>} />
+          <Route path="maintenance" element={<Suspense fallback={<LoadingFallback />}><FleetMaintenance /></Suspense>} />
+          <Route path="reports" element={<Suspense fallback={<LoadingFallback />}><FleetReports /></Suspense>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
