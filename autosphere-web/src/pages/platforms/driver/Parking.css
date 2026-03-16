@@ -1,0 +1,49 @@
+.parking-page .btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.parking-page .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.parking-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.parking-page .card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+}
+
+.parking-page .card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.parking-lot-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-subtle, #eee);
+}
+
+.parking-lot-item:last-child {
+  border-bottom: none;
+}
+
+.parking-lot-item a {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.parking-active-booking {
+  border-left: 4px solid var(--accent);
+}

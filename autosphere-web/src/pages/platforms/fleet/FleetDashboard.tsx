@@ -1,8 +1,15 @@
+import { Link } from 'react-router-dom'
 import { useI18n } from '../../../i18n/context'
 import { api, type FleetDashboardData } from '../../../api/client'
 import { useApiData } from '../../../hooks/useApiData'
 import FleetScreen from './FleetScreen'
 import './FleetDashboard.css'
+
+const FLEET_QUICK_ACCESS = [
+  { id: 7, path: 'organizations', titleKey: 'screens.fleet.organizations' },
+  { id: 8, path: 'roles', titleKey: 'screens.fleet.roles' },
+  { id: 9, path: 'trips', titleKey: 'screens.fleet.trips' },
+]
 
 export default function FleetDashboard() {
   const { t } = useI18n()
@@ -72,6 +79,21 @@ export default function FleetDashboard() {
           </div>
         </div>
       </div>
+      <section className="fleet-dashboard-sections card">
+        <h3>{t('fleet.quickAccess')}</h3>
+        <div className="fleet-dashboard-links">
+          {FLEET_QUICK_ACCESS.map((item) => (
+            <Link
+              key={item.path}
+              to={`/app/fleet/${item.path}`}
+              className="fleet-dashboard-link-card"
+            >
+              <span className="fleet-dashboard-link-num">{item.id}</span>
+              <span className="fleet-dashboard-link-title">{t(item.titleKey)}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </FleetScreen>
   )
 }

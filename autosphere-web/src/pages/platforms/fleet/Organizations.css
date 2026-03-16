@@ -1,0 +1,55 @@
+.fleet-organizations-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.fleet-org-item {
+  padding: 1rem;
+}
+
+.fleet-org-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fleet-org-name {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.fleet-org-slug {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.fleet-org-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.fleet-org-details dt {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.fleet-org-details dd {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.fleet-org-details a {
+  color: var(--accent);
+}

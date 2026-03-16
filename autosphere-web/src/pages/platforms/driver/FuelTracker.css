@@ -1,0 +1,88 @@
+.fuel-tracker-page {
+  max-width: 960px;
+}
+
+.fuel-tracker-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.fuel-tracker-card {
+  padding: 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+}
+
+.fuel-tracker-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fuel-tracker-card .value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fuel-tracker-card .sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.fuel-tracker-carbon-breakdown {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.fuel-tracker-carbon-breakdown span {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.fuel-tracker-refuel-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.fuel-tracker-refuel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.fuel-tracker-refuel-table th,
+.fuel-tracker-refuel-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.fuel-tracker-refuel-table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fuel-tracker-refuel-table tbody tr:hover {
+  background: var(--bg-elevated);
+}
+
+.fuel-tracker-updated {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}
+
+.fuel-tracker-weather-source {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}

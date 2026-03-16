@@ -1,0 +1,70 @@
+.fleet-roles-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.fleet-role-item {
+  padding: 1rem;
+}
+
+.fleet-role-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fleet-role-name {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.fleet-role-slug {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.4rem;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.06));
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+.fleet-role-desc {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.fleet-role-permissions {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.fleet-role-perms-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.fleet-perms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.fleet-perms-list li code {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.4rem;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.06));
+  border-radius: 4px;
+}

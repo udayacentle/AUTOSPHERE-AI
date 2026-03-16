@@ -1,0 +1,191 @@
+.vehicle-health-page {
+  max-width: 960px;
+}
+
+.vehicle-health-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+}
+
+.vehicle-health-overall-circle {
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 4px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vehicle-health-hero-text h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.vehicle-health-hero-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.vehicle-health-breakdown {
+  margin-bottom: 1.5rem;
+}
+
+.vehicle-health-breakdown h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.vehicle-health-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 6px);
+  border: 1px solid var(--border);
+}
+
+.vehicle-health-row-label {
+  flex: 0 0 140px;
+}
+
+.vehicle-health-row-label strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.vehicle-health-row-label span {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.vehicle-health-bar-wrap {
+  flex: 1;
+  height: 20px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vehicle-health-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.vehicle-health-bar--good {
+  background: var(--success, #22c55e);
+}
+
+.vehicle-health-bar--fair {
+  background: #eab308;
+}
+
+.vehicle-health-bar--attention {
+  background: var(--danger, #ef4444);
+}
+
+.vehicle-health-row-value {
+  flex: 0 0 44px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.vehicle-health-row-status {
+  flex: 0 0 90px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+.vehicle-health-row-status--good {
+  color: var(--success, #22c55e);
+}
+
+.vehicle-health-row-status--fair {
+  color: #b45309;
+}
+
+.vehicle-health-row-status--attention {
+  color: var(--danger, #ef4444);
+}
+
+.vehicle-health-recommendations {
+  margin-bottom: 1.5rem;
+}
+
+.vehicle-health-recommendations h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.vehicle-health-recommendations ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vehicle-health-recommendations li {
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  position: relative;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.vehicle-health-recommendations li:last-child {
+  border-bottom: none;
+}
+
+.vehicle-health-recommendations li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.vehicle-health-alerts {
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius, 8px);
+  margin-bottom: 1rem;
+}
+
+.vehicle-health-alerts h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--danger, #ef4444);
+}
+
+.vehicle-health-alerts ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+}
+
+.vehicle-health-updated {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}

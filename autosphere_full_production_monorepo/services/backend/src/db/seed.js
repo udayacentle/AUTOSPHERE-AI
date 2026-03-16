@@ -16,12 +16,12 @@ dotenv.config();
 const DRIVER_ID = "driver1";
 
 const sampleTrips = [
-  { driverId: DRIVER_ID, date: "2025-03-12", distanceKm: 45, durationMin: 62, startLocation: "Downtown", endLocation: "Airport", score: 88 },
-  { driverId: DRIVER_ID, date: "2025-03-11", distanceKm: 23, durationMin: 35, startLocation: "Home", endLocation: "Office", score: 92 },
-  { driverId: DRIVER_ID, date: "2025-03-10", distanceKm: 78, durationMin: 95, startLocation: "City Center", endLocation: "Mall", score: 85 },
-  { driverId: DRIVER_ID, date: "2025-03-09", distanceKm: 12, durationMin: 18, startLocation: "Office", endLocation: "Gym", score: 90 },
-  { driverId: DRIVER_ID, date: "2025-03-08", distanceKm: 56, durationMin: 72, startLocation: "Airport", endLocation: "Downtown", score: 82 },
-  { driverId: DRIVER_ID, date: "2025-03-07", distanceKm: 34, durationMin: 44, startLocation: "Mall", endLocation: "Home", score: 87 },
+  { driverId: DRIVER_ID, date: "2025-03-12", distanceKm: 45, durationMin: 62, startLocation: "San Francisco, CA", endLocation: "SFO Airport", score: 88 },
+  { driverId: DRIVER_ID, date: "2025-03-11", distanceKm: 23, durationMin: 35, startLocation: "Oakland", endLocation: "Downtown SF", score: 92 },
+  { driverId: DRIVER_ID, date: "2025-03-10", distanceKm: 78, durationMin: 95, startLocation: "San Jose", endLocation: "Palo Alto", score: 85 },
+  { driverId: DRIVER_ID, date: "2025-03-09", distanceKm: 12, durationMin: 18, startLocation: "Mission District", endLocation: "SOMA", score: 90 },
+  { driverId: DRIVER_ID, date: "2025-03-08", distanceKm: 56, durationMin: 72, startLocation: "SFO Airport", endLocation: "Berkeley", score: 82 },
+  { driverId: DRIVER_ID, date: "2025-03-07", distanceKm: 34, durationMin: 44, startLocation: "Sunnyvale", endLocation: "Mountain View", score: 87 },
 ];
 
 async function seed() {
@@ -65,10 +65,10 @@ async function seed() {
   await Insurance.deleteOne({ driverId: DRIVER_ID }).catch(() => {});
   await Insurance.create({
     driverId: DRIVER_ID,
-    provider: "AutoSafe Insurance",
+    provider: "State Farm",
     policyNumber: "POL-2024-45678",
     expiryDate: "2025-09-15",
-    premium: 1200,
+    premium: 1240,
     coverage: "Comprehensive",
   });
   console.log("Seeded Insurance");
@@ -95,8 +95,8 @@ async function seed() {
 
   await FleetVehicle.deleteMany({}).catch(() => {});
   await FleetVehicle.insertMany([
-    { plateNumber: "AB-1234", model: "Ford Transit", status: "active", latitude: 37.77, longitude: -122.41 },
-    { plateNumber: "CD-5678", model: "Mercedes Sprinter", status: "active", latitude: 37.78, longitude: -122.42 },
+    { plateNumber: "AB-1234", model: "Ford Transit", status: "active", latitude: 37.7749, longitude: -122.4194 },
+    { plateNumber: "CD-5678", model: "Mercedes Sprinter", status: "active", latitude: 37.7849, longitude: -122.4094 },
     { plateNumber: "EF-9012", model: "Toyota Hiace", status: "maintenance", latitude: null, longitude: null },
   ]);
   console.log("Seeded Fleet vehicles");

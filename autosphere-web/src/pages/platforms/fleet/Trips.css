@@ -1,0 +1,65 @@
+.fleet-trips-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fleet-trips-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.fleet-trips-stats strong {
+  color: var(--text-primary);
+}
+
+.fleet-trips-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fleet-trips-actions select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.fleet-trips-table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.fleet-trips-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.fleet-trips-table th,
+.fleet-trips-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06));
+}
+
+.fleet-trips-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.fleet-trips-table td {
+  color: var(--text-primary);
+}
+
+.fleet-trips-table code {
+  font-size: 0.85em;
+}

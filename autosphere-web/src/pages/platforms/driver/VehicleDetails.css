@@ -1,0 +1,235 @@
+.vehicle-details-page {
+  max-width: 960px;
+}
+
+.vehicle-details-twin {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.vehicle-details-twin-visual {
+  flex: 0 0 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.vehicle-details-car-emoji {
+  font-size: 5.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+}
+
+.vehicle-details-twin-metrics {
+  flex: 1;
+  min-width: 200px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.vehicle-details-twin-metric {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.vehicle-details-twin-metric-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.vehicle-details-twin-metric-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vehicle-details-identity {
+  margin-bottom: 1.5rem;
+}
+
+.vehicle-details-identity h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.vehicle-details-identity .vin {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.vehicle-details-section {
+  margin-bottom: 1.5rem;
+}
+
+.vehicle-details-section h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.vehicle-details-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.vehicle-details-spec-item {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.vehicle-details-spec-item label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.vehicle-details-spec-item span {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.vehicle-details-health-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.vehicle-details-health-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.vehicle-details-health-label {
+  flex: 0 0 120px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.vehicle-details-health-bar-wrap {
+  flex: 1;
+  height: 18px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vehicle-details-health-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.vehicle-details-health-bar--good {
+  background: var(--success, #22c55e);
+}
+
+.vehicle-details-health-bar--warn {
+  background: #eab308;
+}
+
+.vehicle-details-health-bar--low {
+  background: var(--danger, #ef4444);
+}
+
+.vehicle-details-health-value {
+  flex: 0 0 36px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.vehicle-details-docs-list,
+.vehicle-details-recalls-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vehicle-details-docs-list li,
+.vehicle-details-recalls-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.vehicle-details-docs-list li:last-child,
+.vehicle-details-recalls-list li:last-child {
+  border-bottom: none;
+}
+
+.vehicle-details-doc-status {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.vehicle-details-doc-status--valid {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success, #22c55e);
+}
+
+.vehicle-details-doc-status--expired {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger, #ef4444);
+}
+
+.vehicle-details-recall-item strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.vehicle-details-recall-item .summary {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.vehicle-details-alerts {
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius, 8px);
+  margin-bottom: 1rem;
+}
+
+.vehicle-details-alerts ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+}
+
+.vehicle-details-no-recalls {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}

@@ -18,6 +18,10 @@
   color: var(--text-secondary);
 }
 
+.fleet-required-asterisk {
+  color: var(--danger, #e11d48);
+}
+
 .fleet-add-form input,
 .fleet-add-form select {
   padding: 0.5rem 0.75rem;

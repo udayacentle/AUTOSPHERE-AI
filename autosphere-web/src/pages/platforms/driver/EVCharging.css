@@ -1,0 +1,68 @@
+.ev-charging-page .ev-card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+}
+
+.ev-charging-page .ev-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.ev-charging-page .btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.ev-charging-page .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.ev-charging-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ev-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.ev-usage-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.ev-usage-value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.ev-active-session {
+  border-left: 4px solid var(--accent);
+}
+
+.ev-station-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-subtle, #eee);
+}
+
+.ev-station-item:last-child {
+  border-bottom: none;
+}
+
+.ev-station-item a {
+  font-size: 0.85rem;
+  color: var(--accent);
+}

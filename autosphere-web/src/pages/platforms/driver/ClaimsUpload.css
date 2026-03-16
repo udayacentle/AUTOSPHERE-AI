@@ -1,0 +1,145 @@
+.claims-upload-page {
+  max-width: 960px;
+}
+
+.claims-upload-section {
+  margin-bottom: 1.5rem;
+}
+
+.claims-upload-section h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.claims-upload-drop {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius, 8px);
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.claims-upload-drop:hover,
+.claims-upload-drop.dragover {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb, 59, 130, 246), 0.05);
+}
+
+.claims-upload-drop input {
+  display: none;
+}
+
+.claims-description-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  resize: vertical;
+}
+
+.claims-assessment-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+}
+
+.claims-assessment-result h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.claims-assessment-result .cost {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.35rem 0;
+}
+
+.claims-assessment-result .parts {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+
+.claims-assessment-result .severity {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.claims-assessment-result .severity--high {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger, #ef4444);
+}
+
+.claims-assessment-result .severity--medium {
+  background: rgba(234, 179, 8, 0.2);
+  color: #b45309;
+}
+
+.claims-assessment-result .severity--low {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success, #22c55e);
+}
+
+.claims-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.claims-list li {
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.claims-list li:last-child {
+  margin-bottom: 0;
+}
+
+.claims-list .claim-id {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.claims-list .claim-status {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.claims-list .claim-meta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.claims-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}

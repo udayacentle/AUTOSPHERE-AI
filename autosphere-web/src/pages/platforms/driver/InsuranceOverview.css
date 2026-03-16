@@ -1,0 +1,113 @@
+.insurance-overview-page {
+  max-width: 960px;
+}
+
+.insurance-policy-card {
+  margin-bottom: 1.5rem;
+}
+
+.insurance-policy-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.insurance-policy-meta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+}
+
+.insurance-coverage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.insurance-coverage-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.insurance-coverage-list li:last-child {
+  border-bottom: none;
+}
+
+.insurance-coverage-list .limit {
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+}
+
+.insurance-coverage-list .amount {
+  font-weight: 600;
+}
+
+.insurance-calculator-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.insurance-calculator-form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: var(--text-secondary);
+}
+
+.insurance-calculator-form input,
+.insurance-calculator-form select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.insurance-calculator-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+}
+
+.insurance-calculator-result .total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.insurance-calculator-result .breakdown {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.insurance-calculator-result .breakdown span {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.insurance-claims-cta {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.insurance-updated {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}

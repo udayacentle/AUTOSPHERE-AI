@@ -170,6 +170,9 @@ const FleetTracking = lazy(() => import('./pages/platforms/fleet/Tracking'))
 const FleetDrivers = lazy(() => import('./pages/platforms/fleet/Drivers'))
 const FleetMaintenance = lazy(() => import('./pages/platforms/fleet/Maintenance'))
 const FleetReports = lazy(() => import('./pages/platforms/fleet/Reports'))
+const FleetOrganizations = lazy(() => import('./pages/platforms/fleet/Organizations'))
+const FleetRoles = lazy(() => import('./pages/platforms/fleet/Roles'))
+const FleetTrips = lazy(() => import('./pages/platforms/fleet/Trips'))
 
 function LoadingFallback() {
   return (
@@ -353,6 +356,9 @@ function App() {
           <Route path="drivers" element={<Suspense fallback={<LoadingFallback />}><FleetDrivers /></Suspense>} />
           <Route path="maintenance" element={<Suspense fallback={<LoadingFallback />}><FleetMaintenance /></Suspense>} />
           <Route path="reports" element={<Suspense fallback={<LoadingFallback />}><FleetReports /></Suspense>} />
+          <Route path="organizations" element={<Suspense fallback={<LoadingFallback />}><FleetOrganizations /></Suspense>} />
+          <Route path="roles" element={<Suspense fallback={<LoadingFallback />}><FleetRoles /></Suspense>} />
+          <Route path="trips" element={<Suspense fallback={<LoadingFallback />}><FleetTrips /></Suspense>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,13 +1,21 @@
 import { useState } from 'react'
 import { useI18n } from '../../../i18n/context'
 import { api, type FleetVehicleItem } from '../../../api/client'
-import { useApiData } from '../../../hooks/useApiData'
+import { useFleetVehicles } from '../../../contexts/FleetVehiclesContext'
 import FleetScreen from './FleetScreen'
 import './Vehicles.css'
 
+const FALLBACK_VEHICLES: FleetVehicleItem[] = [
+  { plateNumber: 'AB-1234', model: 'Ford Transit', status: 'active' },
+  { plateNumber: 'CD-5678', model: 'Mercedes Sprinter', status: 'active' },
+  { plateNumber: 'EF-9012', model: 'Toyota Hiace', status: 'maintenance' },
+]
+
 export default function Vehicles() {
   const { t } = useI18n()
-  const { data: vehicles = [], loading, error, refetch } = useApiData<FleetVehicleItem[]>(() => api.getFleetVehicles())
+  const { vehicles: contextVehicles, loading, error, refetch } = useFleetVehicles()
+  const raw = contextVehicles.length > 0 ? contextVehicles : (error ? FALLBACK_VEHICLES : [])
+  const vehicles = raw.filter((v, i, arr) => arr.findIndex((x) => (x.plateNumber || '').toLowerCase() === (v.plateNumber || '').toLowerCase()) === i)
   const [plateNumber, setPlateNumber] = useState('')
   const [model, setModel] = useState('')
   const [status, setStatus] = useState('active')
@@ -42,31 +50,27 @@ export default function Vehicles() {
       </FleetScreen>
     )
   }
-  if (error) {
-    return (
-      <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={t('fleet.vehiclesSubtitle')}>
-        <p style={{ color: 'var(--danger)' }}>{error}</p>
-        <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
-      </FleetScreen>
-    )
-  }
-
   return (
     <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={t('fleet.vehiclesSubtitle')}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </div>
-
+      {error && (
+        <p className="fleet-offline-banner" style={{ marginBottom: '1rem', padding: '0.75rem', background: 'var(--bg-elevated)', borderRadius: 8 }}>
+          {t('fleet.showingSampleData')}
+        </p>
+      )}
       <section className="fleet-add-vehicle card">
         <h3>{t('fleet.addVehicle')}</h3>
         <form onSubmit={handleAdd} className="fleet-add-form">
           <label>
-            <span>{t('fleet.plateNumber')} *</span>
+            <span>{t('fleet.plateNumber')} <span className="fleet-required-asterisk">*</span></span>
             <input
               type="text"
               value={plateNumber}
               onChange={(e) => { setPlateNumber(e.target.value); setAddError('') }}
-              placeholder="AB-1234"
+              placeholder={t('fleet.plateNumberPlaceholder')}
+              aria-label={t('fleet.plateNumber')}
             />
           </label>
           <label>
@@ -75,7 +79,8 @@ export default function Vehicles() {
               type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              placeholder="Ford Transit"
+              placeholder={t('fleet.modelPlaceholder')}
+              aria-label={t('fleet.model')}
             />
           </label>
           <label>

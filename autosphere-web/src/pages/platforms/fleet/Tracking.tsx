@@ -1,12 +1,30 @@
 import { useI18n } from '../../../i18n/context'
-import { api, type FleetVehicleItem } from '../../../api/client'
-import { useApiData } from '../../../hooks/useApiData'
+import { type FleetVehicleItem } from '../../../api/client'
+import { useFleetVehicles } from '../../../contexts/FleetVehiclesContext'
 import FleetScreen from './FleetScreen'
 import './Tracking.css'
 
+const FALLBACK_VEHICLES: FleetVehicleItem[] = [
+  { plateNumber: 'AB-1234', model: 'Ford Transit', status: 'active', latitude: 37.77, longitude: -122.41 },
+  { plateNumber: 'CD-5678', model: 'Mercedes Sprinter', status: 'active', latitude: 37.78, longitude: -122.40 },
+  { plateNumber: 'EF-9012', model: 'Toyota Hiace', status: 'maintenance', latitude: null, longitude: null },
+]
+
+function dedupeByPlate<T extends { plateNumber?: string | null }>(list: T[]): T[] {
+  const seen = new Set<string>()
+  return list.filter((v) => {
+    const plate = (v.plateNumber ?? '').trim().toLowerCase()
+    if (!plate || seen.has(plate)) return false
+    seen.add(plate)
+    return true
+  })
+}
+
 export default function Tracking() {
   const { t } = useI18n()
-  const { data: vehicles = [], loading, error, refetch } = useApiData<FleetVehicleItem[]>(() => api.getFleetVehicles())
+  const { vehicles: contextVehicles, loading, error, refetch } = useFleetVehicles()
+  const raw = contextVehicles.length > 0 ? contextVehicles : (error ? FALLBACK_VEHICLES : [])
+  const vehicles = dedupeByPlate(raw)
 
   if (loading) {
     return (

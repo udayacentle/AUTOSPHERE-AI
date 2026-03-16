@@ -1,0 +1,101 @@
+.loan-calculator-page .loan-card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+}
+
+.loan-calculator-page .loan-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.loan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 560px;
+}
+
+.loan-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.loan-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.loan-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font: inherit;
+}
+
+.loan-calculator-page .btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.loan-calculator-page .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.loan-calculator-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loan-result {
+  border-left: 4px solid var(--accent);
+}
+
+.loan-emi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+  color: var(--text-primary);
+}
+
+.loan-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+
+.loan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.loan-table th,
+.loan-table td {
+  padding: 0.4rem 0.6rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border-subtle, #eee);
+}
+
+.loan-table th:first-child,
+.loan-table td:first-child {
+  text-align: left;
+}
+
+.loan-table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.loan-table tbody tr:last-child td {
+  border-bottom: none;
+}

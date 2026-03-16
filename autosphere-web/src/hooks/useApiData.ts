@@ -32,7 +32,7 @@ export function useApiData<T>(
     } catch (e) {
       if (!background) {
         const msg = e instanceof Error ? e.message : 'Failed to load'
-        setError(msg.includes('<') || msg.includes('DOCTYPE') ? 'Unable to load data' : msg)
+        setError(msg.includes('<') || msg.includes('DOCTYPE') ? 'Unable to load data. Start the backend (port 3000) and try again.' : msg)
       }
     } finally {
       if (!background) setLoading(false)

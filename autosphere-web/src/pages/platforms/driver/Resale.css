@@ -1,0 +1,109 @@
+.resale-page .resale-card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+}
+
+.resale-page .resale-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.resale-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 520px;
+}
+
+.resale-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.resale-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.resale-select,
+.resale-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font: inherit;
+}
+
+.resale-page .btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.resale-page .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.resale-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resale-result {
+  border-left: 4px solid var(--accent);
+}
+
+.resale-value-mid {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+  color: var(--text-primary);
+}
+
+.resale-value-range {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.resale-factors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resale-factor-item {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-subtle, #eee);
+  font-size: 0.9rem;
+}
+
+.resale-factor-item:last-child {
+  border-bottom: none;
+}
+
+.resale-factor-name {
+  font-weight: 600;
+}
+
+.resale-factor-impact {
+  color: var(--text-primary);
+}
+
+.resale-factor-detail {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}

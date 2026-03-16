@@ -1,0 +1,90 @@
+.driving-reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.driving-reports-period-btn {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.driving-reports-period-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-primary);
+}
+
+.driving-reports-period-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.driving-reports-period-btn--active:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  opacity: 0.95;
+}
+
+.driving-reports-sample-banner {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+}
+
+.driving-reports-stats {
+  margin-bottom: 1.5rem;
+}
+
+.driving-reports-trips {
+  margin-bottom: 1.5rem;
+}
+
+.driving-reports-trips h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.driving-reports-trips-table-wrap {
+  overflow-x: auto;
+}
+
+.driving-reports-trips-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.driving-reports-trips-table th,
+.driving-reports-trips-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.driving-reports-trips-table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.driving-reports-trips-table td {
+  color: var(--text-primary);
+}
+
+.driving-reports-trips-table tbody tr:hover {
+  background: var(--bg-elevated);
+}

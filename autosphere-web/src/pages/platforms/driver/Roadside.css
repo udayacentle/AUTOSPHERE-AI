@@ -1,0 +1,108 @@
+.roadside-page .roadside-card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--bg-elevated, #fff);
+  border: 1px solid var(--border, #e0e0e0);
+}
+
+.roadside-page .roadside-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.roadside-active {
+  border-left: 4px solid var(--accent);
+}
+
+.roadside-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 420px;
+}
+
+.roadside-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.roadside-select,
+.roadside-input,
+.roadside-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font: inherit;
+}
+
+.roadside-textarea {
+  resize: vertical;
+  min-height: 56px;
+}
+
+.roadside-page .btn-primary {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.roadside-page .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.roadside-page .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.roadside-call-helper {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.roadside-recent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.roadside-recent-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-subtle, #eee);
+  font-size: 0.9rem;
+}
+
+.roadside-recent-item:last-child {
+  border-bottom: none;
+}
+
+.roadside-recent-service {
+  font-weight: 600;
+}
+
+.roadside-recent-time {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.roadside-recent-status {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.35rem;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  margin-left: auto;
+}

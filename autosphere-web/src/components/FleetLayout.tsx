@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { FleetVehiclesProvider } from '../contexts/FleetVehiclesContext'
 import './DriverLayout.css'
 
 export default function FleetLayout() {
@@ -31,8 +32,10 @@ export default function FleetLayout() {
   }, [pathname])
 
   return (
-    <div className="driver-main platform-content" ref={mainRef}>
-      <Outlet />
-    </div>
+    <FleetVehiclesProvider>
+      <div className="driver-main platform-content" ref={mainRef}>
+        <Outlet />
+      </div>
+    </FleetVehiclesProvider>
   )
 }
