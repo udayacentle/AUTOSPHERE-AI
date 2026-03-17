@@ -2,31 +2,31 @@ import DealerScreen from './DealerScreen'
 import { api, type DealerInventoryItem } from '../../../api/client'
 import { useApiData } from '../../../hooks/useApiData'
 import { useI18n } from '../../../i18n/context'
+import { FALLBACK_DEALER_INVENTORY } from './dealerFallbackData'
 
 export default function InventoryManagement() {
   const { t } = useI18n()
-  const { data: inventory = [], loading, error, refetch } = useApiData<DealerInventoryItem[]>(() =>
+  const { data, loading, error, refetch } = useApiData<DealerInventoryItem[]>(() =>
     api.getDealerInventory()
   )
+  const inventory = (data != null && Array.isArray(data)) ? data : (error ? FALLBACK_DEALER_INVENTORY : [])
 
-  if (loading) {
+  if (loading && inventory.length === 0 && !error) {
     return (
       <DealerScreen title="Inventory Management" subtitle="Manage vehicle stock and availability">
         <p style={{ color: 'var(--text-secondary)' }}>{t('common.loading')}</p>
       </DealerScreen>
     )
   }
-  if (error) {
-    return (
-      <DealerScreen title="Inventory Management" subtitle="Manage vehicle stock and availability">
-        <p style={{ color: 'var(--danger)' }}>{error}</p>
-        <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
-      </DealerScreen>
-    )
-  }
 
   return (
-    <DealerScreen title="Inventory Management" subtitle="Real inventory from backend">
+    <DealerScreen title="Inventory Management" subtitle="Manage vehicle stock and availability">
+      {error && (
+        <div style={{ marginBottom: '1rem', padding: '0.6rem 1rem', background: 'rgba(255,193,7,0.15)', borderRadius: 8, color: '#856404', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <span>{t('common.sampleDataBanner')}</span>
+          <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </div>

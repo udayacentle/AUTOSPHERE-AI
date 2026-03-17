@@ -1,0 +1,294 @@
+.portfolio-overview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.portfolio-overview-loading,
+.portfolio-overview-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-overview-error {
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(220, 53, 69, 0.08);
+  border-radius: 12px;
+  color: var(--danger, #dc3545);
+}
+
+.portfolio-overview-error p {
+  margin: 0 0 0.75rem;
+}
+
+.portfolio-overview-sample-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  border-radius: 8px;
+  color: #856404;
+  font-size: 0.875rem;
+}
+
+.portfolio-overview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.portfolio-overview-toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.portfolio-overview-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.portfolio-overview-badge-live {
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+}
+
+.portfolio-overview-badge-sample {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+}
+
+.portfolio-overview-last-updated {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-overview-quick-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--border, #dee2e6);
+}
+
+.portfolio-overview-quick-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-overview-quick-link {
+  font-size: 0.875rem;
+  color: var(--primary, #0d6efd);
+  text-decoration: none;
+}
+
+.portfolio-overview-quick-link:hover {
+  text-decoration: underline;
+}
+
+.portfolio-overview-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border, #dee2e6);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  color: var(--text, #212529);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.portfolio-overview-btn:hover {
+  background: var(--surface-hover, #f8f9fa);
+}
+
+.portfolio-overview-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.portfolio-kpi-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #dee2e6);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.portfolio-kpi-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-kpi-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text, #212529);
+}
+
+.portfolio-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.portfolio-overview-section {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #dee2e6);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.portfolio-overview-section h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text, #212529);
+}
+
+.portfolio-coverage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.portfolio-coverage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border, #eee);
+}
+
+.portfolio-coverage-row:last-child {
+  border-bottom: none;
+}
+
+.portfolio-coverage-name {
+  font-weight: 500;
+  color: var(--text, #212529);
+}
+
+.portfolio-coverage-meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-trend-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.portfolio-trend-item {
+  display: grid;
+  grid-template-columns: 36px 1fr 70px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.portfolio-trend-month {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text, #212529);
+}
+
+.portfolio-trend-bar-wrap {
+  height: 20px;
+  background: var(--border, #e9ecef);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.portfolio-trend-bar {
+  height: 100%;
+  background: var(--primary, #0d6efd);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.portfolio-trend-value {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6c757d);
+  text-align: right;
+}
+
+.portfolio-table-wrap {
+  overflow-x: auto;
+}
+
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.portfolio-table th,
+.portfolio-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border, #eee);
+}
+
+.portfolio-table th {
+  font-weight: 600;
+  color: var(--text-secondary, #6c757d);
+}
+
+.portfolio-table td {
+  color: var(--text, #212529);
+}
+
+.portfolio-risk-high {
+  color: var(--danger, #dc3545);
+  font-weight: 600;
+}
+
+.portfolio-risk-ok {
+  color: var(--text, #212529);
+}
+
+.portfolio-claim-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.portfolio-claim-status.status-paid,
+.portfolio-claim-status.status-approved {
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+}
+
+.portfolio-claim-status.status-assessing,
+.portfolio-claim-status.status-submitted {
+  background: rgba(255, 193, 7, 0.2);
+  color: #856404;
+}
+
+.portfolio-claim-status.status-rejected,
+.portfolio-claim-status.status-closed {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+}

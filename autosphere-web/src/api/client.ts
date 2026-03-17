@@ -373,12 +373,78 @@ export interface ServiceHistoryItem {
   cost: number | null
 }
 
+export interface InsurancePortfolioCoverageItem {
+  coverage: string
+  count: number
+  premium: number
+}
+
+export interface InsurancePortfolioTrendItem {
+  month: string
+  premium: number
+}
+
+export interface InsurancePortfolioRiskItem {
+  driverId: string
+  name: string
+  riskScore: number
+  mobilityScore: number
+}
+
+export interface InsurancePortfolioClaimItem {
+  id: string
+  driverId: string
+  date: string
+  amount: number
+  status: string
+  description?: string
+}
+
+export interface InsurancePortfolioExpiringItem {
+  driverId: string
+  provider: string
+  policyNumber: string
+  expiryDate: string
+}
+
 export interface InsurancePortfolioData {
+  dataSource?: 'live' | 'fallback'
   activePolicies: number
   totalPremium: number
   riskExposure: number
   openClaims: number
   lossRatio: number
+  premiumByCoverage?: InsurancePortfolioCoverageItem[]
+  premiumTrend?: InsurancePortfolioTrendItem[]
+  topRisks?: InsurancePortfolioRiskItem[]
+  recentClaims?: InsurancePortfolioClaimItem[]
+  policiesExpiringSoon?: InsurancePortfolioExpiringItem[]
+  lastUpdated?: string
+}
+
+export interface InsuranceRealTimeRiskAlert {
+  type: string
+  id: string
+  message: string
+}
+
+export interface InsuranceRealTimeRiskSummary {
+  totalDrivers: number
+  totalOpenClaims: number
+  highRiskCount: number
+}
+
+export interface InsuranceRealTimeRiskData {
+  dataSource?: 'live' | 'fallback'
+  riskExposure: number
+  riskLevel: 'high' | 'medium' | 'low'
+  openClaims: number
+  lossRatio: number
+  openClaimsList: Array<{ id: string; driverId: string; date: string; amount: number; status: string; description?: string }>
+  driversRisk: InsuranceDriverRiskItem[]
+  alerts: InsuranceRealTimeRiskAlert[]
+  summary?: InsuranceRealTimeRiskSummary
+  lastUpdated: string
 }
 
 export interface InsurancePolicyListItem {
@@ -388,6 +454,20 @@ export interface InsurancePolicyListItem {
   expiryDate: string
   premium: number
   coverage: string
+  driverName?: string
+}
+
+export interface InsurancePoliciesSummary {
+  totalPolicies: number
+  totalPremium: number
+  expiringSoonCount: number
+}
+
+export interface InsurancePoliciesData {
+  dataSource?: 'live' | 'fallback'
+  policies: InsurancePolicyListItem[]
+  summary: InsurancePoliciesSummary
+  lastUpdated?: string
 }
 
 export interface ClaimStatusTimelineStep {
@@ -408,6 +488,21 @@ export interface InsuranceClaimItem {
   damageType?: string
   affectedParts?: string[]
   statusTimeline?: ClaimStatusTimelineStep[]
+  driverName?: string
+}
+
+export interface InsuranceClaimsSummary {
+  openCount: number
+  paidCount: number
+  totalPaidAmount: number
+  totalClaims: number
+}
+
+export interface InsuranceClaimsData {
+  dataSource?: 'live' | 'fallback'
+  claims: InsuranceClaimItem[]
+  summary: InsuranceClaimsSummary
+  lastUpdated?: string
 }
 
 export interface DamageAssessmentResult {
@@ -425,6 +520,259 @@ export interface InsuranceDriverRiskItem {
   name: string
   riskScore: number
   mobilityScore: number
+  email?: string
+  claimCount?: number
+  policyProvider?: string
+  policyExpiry?: string
+}
+
+export interface InsuranceDriversRiskData {
+  dataSource?: 'live' | 'fallback'
+  drivers: InsuranceDriverRiskItem[]
+  lastUpdated?: string
+}
+
+export interface PremiumRiskBand {
+  minScore: number
+  maxScore: number
+  label: string
+  surchargePercent: number
+}
+
+export interface PremiumDiscountOrSurcharge {
+  id: string
+  name: string
+  condition: string
+  percent: number
+}
+
+export interface PremiumRules {
+  riskBands: PremiumRiskBand[]
+  discounts: PremiumDiscountOrSurcharge[]
+  surcharges: PremiumDiscountOrSurcharge[]
+}
+
+export interface PremiumSegment {
+  segmentType: string
+  segmentValue: string
+  policyCount: number
+  totalPremium: number
+  averagePremium: number
+}
+
+export interface DynamicPremiumSummary {
+  totalPremium: number
+  activePolicies: number
+  lossRatio: number
+  totalClaimsPaid: number
+}
+
+export interface InsuranceDynamicPremiumData {
+  dataSource?: 'live' | 'fallback'
+  rules: PremiumRules
+  segments: PremiumSegment[]
+  summary: DynamicPremiumSummary
+  lastUpdated?: string
+}
+
+export interface InsuranceFraudRiskFlag {
+  claimId: string
+  driverId: string
+  driverName: string
+  fraudScore: number
+  flags: string[]
+  amount: number
+  date: string
+}
+
+export interface InsuranceFraudQueueItem {
+  claimId: string
+  driverId: string
+  driverName: string
+  fraudScore: number
+  reason: string
+  priority: 'high' | 'medium' | 'low'
+}
+
+export interface InsuranceFraudGraphNode {
+  id: string
+  type: 'driver' | 'claim'
+  label: string
+}
+
+export interface InsuranceFraudGraphEdge {
+  from: string
+  to: string
+  type: string
+}
+
+export interface InsuranceFraudDetectionData {
+  dataSource?: 'live' | 'fallback'
+  summary: { totalClaimsAnalyzed: number; highRiskCount: number; inInvestigationCount: number }
+  riskFlags: InsuranceFraudRiskFlag[]
+  investigationQueue: InsuranceFraudQueueItem[]
+  graph: { nodes: InsuranceFraudGraphNode[]; edges: InsuranceFraudGraphEdge[] }
+  lastUpdated?: string
+}
+
+export interface RiskHeatmapRegionBucket {
+  regionKey: string
+  regionLabel: string
+  claimCount: number
+  totalAmount: number
+  riskLevel: 'low' | 'medium' | 'high'
+}
+
+export interface RiskHeatmapTimeBucket {
+  periodKey: string
+  periodLabel: string
+  claimCount: number
+  totalAmount: number
+  riskLevel: 'low' | 'medium' | 'high'
+}
+
+export interface RiskHeatmapSegmentBucket {
+  segmentKey: string
+  segmentLabel: string
+  claimCount: number
+  totalAmount: number
+  riskLevel: 'low' | 'medium' | 'high'
+}
+
+export interface InsuranceRiskHeatmapsData {
+  dataSource?: 'live' | 'fallback'
+  regionHeatmap: RiskHeatmapRegionBucket[]
+  timeHeatmap: RiskHeatmapTimeBucket[]
+  segmentHeatmap: RiskHeatmapSegmentBucket[]
+  lastUpdated?: string
+}
+
+export interface LossForecastItem {
+  periodKey: string
+  periodLabel: string
+  expectedLoss: number
+  claimCount: number
+}
+
+export interface ReserveRecommendations {
+  openClaimsReserve: number
+  ibnrRecommendation: number
+  caseReserveRecommendation: number
+}
+
+export interface LossScenarioItem {
+  id: string
+  name: string
+  description: string
+  projectedLossRatio: number
+  projectedTotalLoss: number
+}
+
+export interface InsurancePredictiveLossForecastingData {
+  dataSource?: 'live' | 'fallback'
+  lossForecast: LossForecastItem[]
+  reserveRecommendations: ReserveRecommendations
+  scenarioAnalysis: LossScenarioItem[]
+  summary?: { totalPremium: number; paidToDate: number; openClaimsCount: number }
+  lastUpdated?: string
+}
+
+export interface ModelMetricsItem {
+  modelId: string
+  modelName: string
+  accuracy: number
+  precision: number
+  recall: number
+  auc: number
+  sampleSize?: number
+}
+
+export interface DriftDetectionData {
+  riskInputDrift: number
+  riskPredictionDrift: number
+  fraudInputDrift: number
+  fraudPredictionDrift: number
+}
+
+export interface ModelVersionItem {
+  versionId: string
+  name: string
+  deployedAt: string
+  accuracy: number
+  status: 'active' | 'deprecated'
+}
+
+export interface InsuranceModelPerformanceData {
+  dataSource?: 'live' | 'fallback'
+  modelMetrics: ModelMetricsItem[]
+  driftDetection: DriftDetectionData
+  versionHistory: ModelVersionItem[]
+  lastUpdated?: string
+}
+
+export interface RegulatoryReportItem {
+  reportId: string
+  name: string
+  jurisdiction: string
+  dueDate: string
+  status: 'due' | 'filed' | 'upcoming'
+  period: string
+}
+
+export interface AuditTrailItem {
+  id: string
+  type: 'claim' | 'policy'
+  action: string
+  entityId: string
+  at: string
+  detail: string
+}
+
+export interface ExportOptionItem {
+  format: string
+  reportType: string
+  description: string
+}
+
+export interface InsuranceComplianceReportingData {
+  dataSource?: 'live' | 'fallback'
+  regulatoryReports: RegulatoryReportItem[]
+  auditTrail: AuditTrailItem[]
+  exportOptions: ExportOptionItem[]
+  summary?: { totalReportsDue: number; lastAuditAt: string; totalRegulatoryReports: number }
+  lastUpdated?: string
+}
+
+export interface ApiEndpointItem {
+  id: string
+  name: string
+  type: 'autosphere' | 'telematics' | 'third-party'
+  status: 'active' | 'inactive'
+  baseUrlMasked: string
+  lastUsed: string | null
+}
+
+export interface WebhookItem {
+  id: string
+  eventType: string
+  urlMasked: string
+  status: 'active' | 'inactive'
+  lastTriggered: string | null
+}
+
+export interface RateLimitItem {
+  product: string
+  limit: number
+  used: number
+  remaining: number
+}
+
+export interface InsuranceApiIntegrationSettingsData {
+  dataSource?: 'live' | 'fallback'
+  apiEndpoints: ApiEndpointItem[]
+  webhooks: WebhookItem[]
+  rateLimits: { period: string; items: RateLimitItem[] }
+  lastUpdated?: string
 }
 
 export interface TechnicianJobItem {
@@ -709,6 +1057,231 @@ export interface DealerInventoryItem {
   price: number
   status: string
   plateNumber?: string
+  notes?: string
+}
+
+export interface DealerVehicleSaveResult {
+  dataSource?: 'live' | 'fallback'
+  success: boolean
+  vehicle: DealerInventoryItem | null
+  lastUpdated?: string
+}
+
+export interface DealerLeadItem {
+  id: string
+  name: string
+  email: string
+  phone: string
+  source: string
+  status: string
+  score: number
+  createdAt: string
+}
+
+export interface DealerLeadsData {
+  dataSource?: 'live' | 'fallback'
+  leads: DealerLeadItem[]
+  lastUpdated?: string
+}
+
+export interface DealerSuggestedPriceItem {
+  vehicleId: string
+  make: string
+  model: string
+  currentPrice: number
+  suggestedPrice: number
+  margin: number
+  reason: string
+}
+
+export interface DealerDynamicPricingData {
+  dataSource?: 'live' | 'fallback'
+  suggestedPrices: DealerSuggestedPriceItem[]
+  rules: Array<{ id: string; name: string; value: string }>
+  lastUpdated?: string
+}
+
+export interface DealerDemandForecastData {
+  dataSource?: 'live' | 'fallback'
+  bySegment: Array<{ segment: string; demand: number; stock: number; gap: number }>
+  byMonth: Array<{ month: string; demand: number; trend: string }>
+  lastUpdated?: string
+}
+
+export interface DealerSalesFunnelData {
+  dataSource?: 'live' | 'fallback'
+  stages: Array<{ stage: string; count: number; conversion: number }>
+  summary: { totalLeads: number; winRate: number }
+  lastUpdated?: string
+}
+
+export interface DealerSalesAnalyticsData {
+  dataSource?: 'live' | 'fallback'
+  totalRevenue: number
+  unitsSold: number
+  avgDealSize: number
+  byMonth: Array<{ month: string; revenue: number; units: number }>
+  lastUpdated?: string
+}
+
+export interface DealerCommissionData {
+  dataSource?: 'live' | 'fallback'
+  totalEarned: number
+  pending: number
+  byStaff: Array<{ staffId: string; name: string; earned: number; pending: number; deals: number }>
+  lastUpdated?: string
+}
+
+export interface DealerMarketTrendsData {
+  dataSource?: 'live' | 'fallback'
+  insights: Array<{ id: string; title: string; segment: string; trend: string; impact: string }>
+  priceIndex: Record<string, number>
+  lastUpdated?: string
+}
+
+export interface DealerTradeInValuationItem {
+  id: string
+  make: string
+  model: string
+  year: number
+  mileage: number
+  condition: string
+  rangeLow: number
+  rangeHigh: number
+  certifiedOffer: number
+}
+
+export interface DealerTradeInValuationsData {
+  dataSource?: 'live' | 'fallback'
+  valuations: DealerTradeInValuationItem[]
+  lastUpdated?: string
+}
+
+export interface DealerCustomerItem {
+  id: string
+  name: string
+  email: string
+  vehiclesOwned: number
+  lastVisit: string
+  lifetimeValue: number
+}
+
+export interface DealerCustomersData {
+  dataSource?: 'live' | 'fallback'
+  customers: DealerCustomerItem[]
+  lastUpdated?: string
+}
+
+export interface DealerFinanceIntegrationData {
+  dataSource?: 'live' | 'fallback'
+  lenders: Array<{ id: string; name: string; status: string; approvalRate: number }>
+  summary: { applicationsThisMonth: number; approved: number; avgApr: number }
+  lastUpdated?: string
+}
+
+// Sales dashboard APIs
+export interface SalesDashboardData {
+  dataSource?: 'live' | 'fallback'
+  myLeads: number
+  hotProspects: number
+  followUpsDue: number
+  pipelineValue: number
+  dealsInProgress: number
+  monthlyTarget: number
+  monthlyAchieved: number
+  targetPercent: number
+  commissionEarned: number
+  commissionPending: number
+  lastUpdated?: string
+}
+
+export interface SalesLeadAssignmentItem {
+  id: string
+  name: string
+  email: string
+  source: string
+  score: number
+  status: string
+  assignedTo?: string
+  createdAt: string
+}
+
+export interface SalesLeadAssignmentData {
+  dataSource?: 'live' | 'fallback'
+  leadQueue: SalesLeadAssignmentItem[]
+  scoringRules: Array<{ id: string; name: string; weight: number }>
+  assignmentMode: string
+  lastUpdated?: string
+}
+
+export interface SalesInteractionItem {
+  id: string
+  leadId: string
+  type: string
+  summary: string
+  at: string
+  rep: string
+}
+
+export interface SalesCustomerInteractionsData {
+  dataSource?: 'live' | 'fallback'
+  activities: SalesInteractionItem[]
+  notesByLead: Record<string, string>
+  lastUpdated?: string
+}
+
+export interface SalesPerformanceMetricsData {
+  dataSource?: 'live' | 'fallback'
+  conversionRates: { leadToQualified: number; qualifiedToProposal: number; proposalToWon: number }
+  activity: { callsThisWeek: number; meetings: number; testDrives: number; proposalsSent: number }
+  rankings: Array<{ rank: number; name: string; volume: number; revenue: number; targetPercent: number }>
+  lastUpdated?: string
+}
+
+export interface SalesCommissionData {
+  dataSource?: 'live' | 'fallback'
+  earned: number
+  pending: number
+  payoutHistory: Array<{ id: string; period: string; amount: number; paidAt: string }>
+  byDeal: Array<{ dealId: string; vehicle: string; amount: number; status: string }>
+  lastUpdated?: string
+}
+
+export interface SalesAISuggestionsData {
+  dataSource?: 'live' | 'fallback'
+  nextBestAction: { leadId: string; action: string; reason: string; priority: string }
+  talkingPoints: Array<{ leadId: string; points: string[] }>
+  vehicleRecommendations: Array<{ leadId: string; vehicles: string[]; matchReason: string }>
+  lastUpdated?: string
+}
+
+export interface SalesFollowUpItem {
+  id: string
+  leadId: string
+  type: string
+  due: string
+  leadName: string
+}
+
+export interface SalesFollowUpData {
+  dataSource?: 'live' | 'fallback'
+  upcoming: SalesFollowUpItem[]
+  overdue: SalesFollowUpItem[]
+  lastUpdated?: string
+}
+
+export interface SalesTargetAchievementData {
+  dataSource?: 'live' | 'fallback'
+  targetUnits: number
+  achievedUnits: number
+  targetRevenue: number
+  achievedRevenue: number
+  daysLeftInPeriod: number
+  progressPercent: number
+  gapUnits: number
+  gapRevenue: number
+  forecastAtRunRate: number
+  lastUpdated?: string
 }
 
 export interface AnalyticsTrendsData {
@@ -963,9 +1536,17 @@ export const api = {
       : get<DriverMarketplaceData>('/api/driver/marketplace'),
   getServiceHistory: (driverId?: string) => get<ServiceHistoryItem[]>('/api/driver/service-history', driverId),
   getInsurancePortfolio: () => get<InsurancePortfolioData>('/api/insurance/portfolio'),
-  getInsurancePolicies: () => get<InsurancePolicyListItem[]>('/api/insurance/policies'),
-  getInsuranceClaims: () => get<InsuranceClaimItem[]>('/api/insurance/claims'),
-  getInsuranceDriversRisk: () => get<InsuranceDriverRiskItem[]>('/api/insurance/drivers-risk'),
+  getInsuranceRealTimeRisk: () => get<InsuranceRealTimeRiskData>('/api/insurance/real-time-risk'),
+  getInsurancePolicies: () => get<InsurancePoliciesData>('/api/insurance/policies'),
+  getInsuranceClaims: () => get<InsuranceClaimsData>('/api/insurance/claims'),
+  getInsuranceDriversRisk: () => get<InsuranceDriversRiskData>('/api/insurance/drivers-risk'),
+  getInsuranceDynamicPremium: () => get<InsuranceDynamicPremiumData>('/api/insurance/dynamic-premium'),
+  getInsuranceFraudDetection: () => get<InsuranceFraudDetectionData>('/api/insurance/fraud-detection'),
+  getInsuranceRiskHeatmaps: () => get<InsuranceRiskHeatmapsData>('/api/insurance/risk-heatmaps'),
+  getInsurancePredictiveLossForecasting: () => get<InsurancePredictiveLossForecastingData>('/api/insurance/predictive-loss-forecasting'),
+  getInsuranceModelPerformance: () => get<InsuranceModelPerformanceData>('/api/insurance/model-performance'),
+  getInsuranceComplianceReporting: () => get<InsuranceComplianceReportingData>('/api/insurance/compliance-reporting'),
+  getInsuranceApiIntegrationSettings: () => get<InsuranceApiIntegrationSettingsData>('/api/insurance/api-integration-settings'),
   getTechnicianJobs: () => get<TechnicianJobItem[]>('/api/technician/jobs'),
   getDriverTechnicianProfile: (driverId?: string) =>
     get<DriverTechnicianProfileData>('/api/driver/technician-profile', driverId),
@@ -975,6 +1556,36 @@ export const api = {
   getGovernmentRecallsSummary: (make?: string, year?: number) =>
     getWithQuery<GovernmentRecallsSummaryData>('/api/government/recalls-summary', { make: make ?? 'Toyota', year: year ?? 2024 }),
   getDealerInventory: () => get<DealerInventoryItem[]>('/api/dealer/inventory'),
+  getDealerLeads: () => get<DealerLeadsData>('/api/dealer/leads'),
+  getDealerDynamicPricing: () => get<DealerDynamicPricingData>('/api/dealer/dynamic-pricing'),
+  getDealerDemandForecast: () => get<DealerDemandForecastData>('/api/dealer/demand-forecast'),
+  getDealerSalesFunnel: () => get<DealerSalesFunnelData>('/api/dealer/sales-funnel'),
+  getDealerSalesAnalytics: () => get<DealerSalesAnalyticsData>('/api/dealer/sales-analytics'),
+  getDealerCommission: () => get<DealerCommissionData>('/api/dealer/commission'),
+  getDealerMarketTrends: () => get<DealerMarketTrendsData>('/api/dealer/market-trends'),
+  getDealerTradeInValuations: () => get<DealerTradeInValuationsData>('/api/dealer/trade-in-valuations'),
+  getDealerCustomers: () => get<DealerCustomersData>('/api/dealer/customers'),
+  getDealerFinanceIntegration: () => get<DealerFinanceIntegrationData>('/api/dealer/finance-integration'),
+  getSalesDashboard: () => get<SalesDashboardData>('/api/sales/dashboard'),
+  getSalesLeadAssignment: () => get<SalesLeadAssignmentData>('/api/sales/lead-assignment'),
+  getSalesCustomerInteractions: () => get<SalesCustomerInteractionsData>('/api/sales/customer-interactions'),
+  getSalesPerformanceMetrics: () => get<SalesPerformanceMetricsData>('/api/sales/performance-metrics'),
+  getSalesCommission: () => get<SalesCommissionData>('/api/sales/commission'),
+  getSalesAISuggestions: () => get<SalesAISuggestionsData>('/api/sales/ai-suggestions'),
+  getSalesFollowUp: () => get<SalesFollowUpData>('/api/sales/follow-up'),
+  getSalesTargetAchievement: () => get<SalesTargetAchievementData>('/api/sales/target-achievement'),
+  saveDealerVehicle: (payload: Partial<DealerInventoryItem> & { make: string; model: string; plateNumber: string }) =>
+    fetch(`${API_BASE}/api/dealer/inventory`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok && (data as { success?: boolean }).success !== true) {
+        throw new Error((data as { error?: string }).error || 'Save failed')
+      }
+      return data as DealerVehicleSaveResult
+    }),
   getAnalyticsVehicleHealthTrends: () => get<AnalyticsTrendsData>('/api/analytics/vehicle-health-trends'),
   getAnalyticsInsuranceRiskTrends: () => get<AnalyticsTrendsData>('/api/analytics/insurance-risk-trends'),
 }
