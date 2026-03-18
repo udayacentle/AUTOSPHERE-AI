@@ -11,7 +11,7 @@ import type {
   SalesAISuggestionsData,
   SalesFollowUpData,
   SalesTargetAchievementData,
-} from '../../api/client'
+} from '../../../api/client'
 
 const now = new Date().toISOString()
 

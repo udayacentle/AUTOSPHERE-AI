@@ -2144,7 +2144,7 @@ app.post("/api/driver/claims/assess", (req, res) => {
   }
 });
 
-app.post("/api/driver/claims", (req, res) => {
+app.post("/api/driver/claims", async (req, res) => {
   try {
     const driverId = getDriverId(req);
     const { description, assessmentId, estimatedCost, damageType, affectedParts } = req.body || {};

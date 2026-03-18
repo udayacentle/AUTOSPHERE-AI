@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import SalesScreen from './SalesScreen'
-import { api, type SalesPerformanceMetricsData } from '../../api/client'
-import { useApiData } from '../../hooks/useApiData'
-import { useI18n } from '../../i18n/context'
+import { api, type SalesPerformanceMetricsData } from '../../../api/client'
+import { useApiData } from '../../../hooks/useApiData'
+import { useI18n } from '../../../i18n/context'
 import { FALLBACK_SALES_PERFORMANCE } from './salesFallbackData'
 import './SalesSection.css'
 
