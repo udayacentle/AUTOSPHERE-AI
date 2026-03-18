@@ -2,17 +2,19 @@ import { useState } from 'react'
 import { useI18n } from '../../../i18n/context'
 import { api, type FleetVehicleItem } from '../../../api/client'
 import { useFleetVehicles } from '../../../contexts/FleetVehiclesContext'
+import { useFleetRole } from '../../../contexts/FleetRoleContext'
 import FleetScreen from './FleetScreen'
 import './Vehicles.css'
 
 const FALLBACK_VEHICLES: FleetVehicleItem[] = [
-  { plateNumber: 'AB-1234', model: 'Ford Transit', status: 'active' },
-  { plateNumber: 'CD-5678', model: 'Mercedes Sprinter', status: 'active' },
-  { plateNumber: 'EF-9012', model: 'Toyota Hiace', status: 'maintenance' },
+  { plateNumber: 'AB-1234', model: 'Ford Transit', status: 'active', latitude: null, longitude: null },
+  { plateNumber: 'CD-5678', model: 'Mercedes Sprinter', status: 'active', latitude: null, longitude: null },
+  { plateNumber: 'EF-9012', model: 'Toyota Hiace', status: 'maintenance', latitude: null, longitude: null },
 ]
 
 export default function Vehicles() {
   const { t } = useI18n()
+  const { passengerVehicleReadOnly } = useFleetRole()
   const { vehicles: contextVehicles, loading, error, refetch } = useFleetVehicles()
   const raw = contextVehicles.length > 0 ? contextVehicles : (error ? FALLBACK_VEHICLES : [])
   const vehicles = raw.filter((v, i, arr) => arr.findIndex((x) => (x.plateNumber || '').toLowerCase() === (v.plateNumber || '').toLowerCase()) === i)
@@ -43,15 +45,19 @@ export default function Vehicles() {
     }
   }
 
+  const vehiclesSubtitle = passengerVehicleReadOnly
+    ? t('fleet.vehiclesPassengerSubtitle')
+    : t('fleet.vehiclesSubtitle')
+
   if (loading) {
     return (
-      <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={t('fleet.vehiclesSubtitle')}>
+      <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={vehiclesSubtitle}>
         <p style={{ color: 'var(--text-secondary)' }}>{t('common.loading')}</p>
       </FleetScreen>
     )
   }
   return (
-    <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={t('fleet.vehiclesSubtitle')}>
+    <FleetScreen title={t('fleet.vehiclesTitle')} subtitle={vehiclesSubtitle}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </div>
@@ -60,6 +66,7 @@ export default function Vehicles() {
           {t('fleet.showingSampleData')}
         </p>
       )}
+      {!passengerVehicleReadOnly && (
       <section className="fleet-add-vehicle card">
         <h3>{t('fleet.addVehicle')}</h3>
         <form onSubmit={handleAdd} className="fleet-add-form">
@@ -97,6 +104,7 @@ export default function Vehicles() {
           </button>
         </form>
       </section>
+      )}
 
       <section className="fleet-vehicle-list card">
         <h3>{t('fleet.vehicleList')} ({vehicles.length})</h3>

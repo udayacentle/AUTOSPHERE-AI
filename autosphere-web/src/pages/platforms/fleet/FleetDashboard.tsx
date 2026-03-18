@@ -6,9 +6,10 @@ import FleetScreen from './FleetScreen'
 import './FleetDashboard.css'
 
 const FLEET_QUICK_ACCESS = [
-  { id: 7, path: 'organizations', titleKey: 'screens.fleet.organizations' },
-  { id: 8, path: 'roles', titleKey: 'screens.fleet.roles' },
-  { id: 9, path: 'trips', titleKey: 'screens.fleet.trips' },
+  { path: 'organizations', titleKey: 'screens.fleet.organizations' },
+  { path: 'roles', titleKey: 'screens.fleet.roles' },
+  { path: 'trips', titleKey: 'screens.fleet.trips' },
+  { path: 'users', titleKey: 'screens.fleet.users' },
 ]
 
 export default function FleetDashboard() {
@@ -36,6 +37,20 @@ export default function FleetDashboard() {
 
   return (
     <FleetScreen title={t('fleet.dashboardTitle')} subtitle={t('fleet.dashboardSubtitle')}>
+      <section className="fleet-dashboard-sections card fleet-dashboard-quick-access-top">
+        <h3>{t('fleet.quickAccess')}</h3>
+        <div className="fleet-dashboard-links">
+          {FLEET_QUICK_ACCESS.map((item) => (
+            <Link
+              key={item.path}
+              to={`/app/fleet/${item.path}`}
+              className="fleet-dashboard-link-card"
+            >
+              <span className="fleet-dashboard-link-title">{t(item.titleKey)}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </div>
@@ -79,21 +94,6 @@ export default function FleetDashboard() {
           </div>
         </div>
       </div>
-      <section className="fleet-dashboard-sections card">
-        <h3>{t('fleet.quickAccess')}</h3>
-        <div className="fleet-dashboard-links">
-          {FLEET_QUICK_ACCESS.map((item) => (
-            <Link
-              key={item.path}
-              to={`/app/fleet/${item.path}`}
-              className="fleet-dashboard-link-card"
-            >
-              <span className="fleet-dashboard-link-num">{item.id}</span>
-              <span className="fleet-dashboard-link-title">{t(item.titleKey)}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
     </FleetScreen>
   )
 }

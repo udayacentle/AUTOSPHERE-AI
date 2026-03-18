@@ -63,3 +63,82 @@
 .fleet-trips-table code {
   font-size: 0.85em;
 }
+
+.fleet-book-trip-card {
+  margin-bottom: 1rem;
+}
+
+.fleet-book-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.fleet-book-form input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 160px;
+}
+
+.fleet-trip-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.fleet-trip-status-pending { background: #fef3c7; color: #92400e; }
+.fleet-trip-status-assigned { background: #dbeafe; color: #1e40af; }
+.fleet-trip-status-in_progress { background: #e0e7ff; color: #3730a3; }
+.fleet-trip-status-completed { background: #d1fae5; color: #065f46; }
+.fleet-trip-status-rejected { background: #fee2e2; color: #991b1b; }
+
+.fleet-trip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.fleet-trip-actions select {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background: var(--primary, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  background: var(--bg-secondary, rgba(0,0,0,0.06));
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-small:hover:not(:disabled) {
+  background: var(--bg-elevated);
+}

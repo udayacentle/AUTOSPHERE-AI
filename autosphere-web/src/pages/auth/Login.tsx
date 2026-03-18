@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useI18n } from '../../i18n/context'
+import { loadSavedLoginUsernames, rememberLoginUsername } from './loginUsernameStorage'
+import { LoginUsernameField } from './LoginUsernameField'
 import './Auth.css'
 import './Login.css'
 
@@ -9,6 +11,8 @@ const THEME_STORAGE_KEY = 'autosphere-theme'
 export default function Login() {
   const { t } = useI18n()
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
+  const [savedUsernames, setSavedUsernames] = useState<string[]>([])
+  const [savedAccountPick, setSavedAccountPick] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -19,6 +23,10 @@ export default function Login() {
     }
   })
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setSavedUsernames(loadSavedLoginUsernames())
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -58,6 +66,8 @@ export default function Login() {
         setError(data.message || t('auth.errorLoginFailed'))
         return
       }
+      rememberLoginUsername(trimmed)
+      setSavedUsernames(loadSavedLoginUsernames())
       if (data.token) {
         try {
           localStorage.setItem('autosphere-token', data.token)
@@ -101,11 +111,15 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="auth-form login-form" noValidate>
           <label className="login-label">
             <span>{t('auth.usernameOrEmail')} <span className="required">{t('profile.required')}</span></span>
-            <input
-              type="text"
-              placeholder={t('auth.enterUsernameOrEmail')}
+            <LoginUsernameField
+              id="login-username"
               value={usernameOrEmail}
-              onChange={(e) => { setUsernameOrEmail(e.target.value); setError('') }}
+              onChange={(v) => {
+                setUsernameOrEmail(v)
+                setError('')
+              }}
+              suggestions={savedUsernames}
+              placeholder={t('auth.enterUsernameOrEmail')}
             />
           </label>
           <label className="login-label">

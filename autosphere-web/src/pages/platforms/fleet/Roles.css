@@ -68,3 +68,48 @@
   background: var(--bg-secondary, rgba(0, 0, 0, 0.06));
   border-radius: 4px;
 }
+
+.fleet-permissions-matrix-section {
+  margin-bottom: 1.5rem;
+}
+
+.fleet-matrix-intro {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.fleet-principles-list {
+  margin: 0 0 1rem 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.fleet-matrix-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.5rem;
+}
+
+.fleet-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.fleet-matrix-table th,
+.fleet-matrix-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.fleet-matrix-table th {
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fleet-matrix-table tbody tr:nth-child(even) {
+  background: var(--bg-elevated, rgba(0, 0, 0, 0.02));
+}

@@ -13,6 +13,7 @@ import { AI_ADMIN_SCREENS } from '../config/aiAdminScreens'
 import { ANALYTICS_SCREENS } from '../config/analyticsScreens'
 import { AI_ASSISTANT_SCREENS } from '../config/aiAssistantScreens'
 import { FLEET_SCREENS } from '../config/fleetScreens'
+import { getFleetScreensForRole, getStoredFleetRole } from '../config/fleetRoleAccess'
 import './Layout.css'
 
 const THEME_STORAGE_KEY = 'autosphere-theme'
@@ -48,8 +49,22 @@ export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useI18n()
+  const [fleetRoleTick, setFleetRoleTick] = useState(0)
   const currentPlatform = getPlatformFromPath(location.pathname)
-  const subsections = currentPlatform ? PLATFORM_SCREENS[currentPlatform] : null
+
+  useEffect(() => {
+    const h = () => setFleetRoleTick((n) => n + 1)
+    window.addEventListener('fleet-demo-role-change', h)
+    return () => window.removeEventListener('fleet-demo-role-change', h)
+  }, [])
+
+  const subsections =
+    currentPlatform === 'fleet'
+      ? getFleetScreensForRole(getStoredFleetRole())
+      : currentPlatform
+        ? PLATFORM_SCREENS[currentPlatform]
+        : null
+  void fleetRoleTick
 
   // On reload: behave like clicking the AutoSphere AI logo — go to welcome page
   useEffect(() => {
@@ -160,13 +175,10 @@ export default function Layout() {
               type="button"
               className="btn-logout-top"
               onClick={() => navigate('/auth/login')}
-              title="Logout"
-              aria-label="Logout"
+              title={t('nav.logout')}
+              aria-label={t('nav.logout')}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
-                <line x1="12" y1="2" x2="12" y2="12"/>
-              </svg>
+              {t('nav.logout')}
             </button>
           </div>
         </header>

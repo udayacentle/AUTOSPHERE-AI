@@ -1,0 +1,47 @@
+.fleet-brd-card {
+  margin-bottom: 1rem;
+}
+.fleet-brd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.fleet-brd-table th,
+.fleet-brd-table td {
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+.fleet-brd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.fleet-brd-actions button {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+}
+.fleet-brd-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.fleet-brd-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.fleet-brd-toolbar label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.fleet-brd-toolbar select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}

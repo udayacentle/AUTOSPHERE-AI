@@ -244,13 +244,74 @@ export interface FleetRoleItem {
 
 export interface FleetTripItem {
   id: string
-  driverId: string
+  driverId: string | null
+  passengerId?: string | null
   date: string
   distanceKm: number
   durationMin: number
   startLocation: string
   endLocation: string
   score: number
+  status?: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'rejected'
+  vehicleId?: string | null
+}
+
+export interface FleetPermissionsMatrix {
+  roles: string[]
+  features: Array<{
+    id: string
+    name: string
+    driver: string
+    passenger: string
+    entity_admin: string
+    super_admin: string
+    guest: string
+  }>
+  principles: string[]
+}
+
+export interface FleetUserItem {
+  _id?: string
+  id?: string
+  userId: string
+  email?: string
+  fullName?: string
+  roleSlug: string
+  organizationId?: { _id: string; name?: string; slug?: string } | null
+  status?: string
+}
+
+export interface FleetActivityLogItem {
+  _id?: string
+  id?: string
+  action: string
+  summary: string
+  actorUserId?: string
+  targetType?: string
+  targetId?: string
+  meta?: Record<string, unknown>
+  createdAt?: string
+}
+
+export interface FleetPublicVehiclesResponse {
+  vehicles: Array<{ plateNumber: string; model: string; availability: string }>
+  notice: string
+}
+
+export interface FleetPassengerBillingData {
+  passengerId: string
+  currency: string
+  lines: Array<{ id: string; date: string; description: string; amount: number; status: string }>
+  balanceDue: number
+  lastInvoiceUrl?: string
+}
+
+export interface FleetSystemSettingsData {
+  siteName: string
+  maintenanceWindowUtc: string
+  dataRetentionDays: number
+  requireMfaForAdmins: boolean
+  complianceNote: string
 }
 
 export interface WeatherData {
@@ -786,6 +847,156 @@ export interface TechnicianJobItem {
   description?: string
 }
 
+export interface DiagnosticCodeItem {
+  code: string
+  type: string
+  description: string
+  severity: 'critical' | 'warning' | 'info'
+  status: string
+  firstSeenAt: string
+  relatedRepairId: string | null
+}
+
+export interface DiagnosticSensorReading {
+  name: string
+  value: number | string
+  unit: string
+  status: 'normal' | 'warning' | 'critical'
+  readAt: string
+}
+
+export interface DiagnosticServiceRecord {
+  date: string
+  type: string
+  description: string
+  mileageKm: number | null
+  partsReplaced: string[]
+  cost: number | null
+  provider: string
+}
+
+export interface VehicleDiagnosticTwinData {
+  vehicleId: string
+  vin: string
+  plateNumber: string
+  make: string
+  model: string
+  year: number
+  odometerKm: number
+  healthScore: number
+  health: { engine: number; battery: number; brakesTires: number; fluids: number; electrical: number }
+  diagnosticCodes: DiagnosticCodeItem[]
+  sensorData: DiagnosticSensorReading[]
+  serviceHistory: DiagnosticServiceRecord[]
+  lastScanAt: string
+}
+
+export interface VehicleDiagnosticTwinListItem {
+  vehicleId: string
+  vin?: string
+  plateNumber: string
+  make: string
+  model: string
+  year: number
+  healthScore: number
+  lastScanAt?: string
+}
+
+export interface TechnicianProfileData {
+  technicianId: string
+  name: string
+  email: string
+  workshop: string
+  bay: string
+  role: string
+}
+
+export interface TechnicianAiFaultItem {
+  fault: string
+  cause: string
+  confidence: number
+  evidence: string
+}
+
+export interface TechnicianAiFaultsData {
+  faults: TechnicianAiFaultItem[]
+  rootCause: { primary: string; contributing: string[] }
+  similarCases: Array<{ caseId: string; vehiclePlate: string; summary: string; outcome: string }>
+}
+
+export interface TechnicianRepairStep {
+  order: number
+  name: string
+  description: string
+  durationMin: number
+}
+
+export interface TechnicianPartItem {
+  partNumber: string
+  name: string
+  quantity: number
+  inStock: boolean
+  unitPrice: number
+}
+
+export interface TechnicianRepairRecommendationsData {
+  steps: TechnicianRepairStep[]
+  parts: TechnicianPartItem[]
+  labourMinutes: number
+  manualLinks: Array<{ title: string; url: string }>
+}
+
+export interface TechnicianPartsPredictionData {
+  predicted: TechnicianPartItem[]
+  stock: Array<{ partNumber: string; name: string; quantity: number; location: string }>
+  alternatives: Array<{ partNumber: string; name: string; oemPartNumber: string; aftermarket: boolean }>
+}
+
+export interface TechnicianWorkflowStage {
+  id: string
+  name: string
+  status: string
+  estimatedMin: number
+  actualMin: number | null
+  startedAt: string | null
+  completedAt: string | null
+}
+
+export interface TechnicianWorkflowData {
+  stages: TechnicianWorkflowStage[]
+}
+
+export interface TechnicianTimeEstimateData {
+  estimatedMinutes: number
+  actualMinutes: number | null
+  eta: string | null
+  startedAt: string | null
+}
+
+export interface TechnicianArStep {
+  order: number
+  title: string
+  instruction: string
+  highlightComponent: string
+}
+
+export interface TechnicianPerformanceData {
+  firstTimeFixRate: number
+  reworkPercent: number
+  customerRating: number
+  workshopAverage: number
+  trends: Array<{ period: string; score: number; label: string }>
+  goals: Array<{ name: string; target: number; current: number; unit: string }>
+}
+
+export interface TechnicianEarningsData {
+  byPeriod: Array<{ period: string; label: string; base: number; incentive: number; total: number }>
+  byJobType: Array<{ jobType: string; labourUnits: number; amount: number; count: number }>
+  payouts: Array<{ date: string; amount: number; status: string; method: string }>
+  nextPayDate: string
+  pendingAmount: number
+}
+
 export interface DriverTechnicianProfileData {
   id: string
   name: string
@@ -845,6 +1056,67 @@ export interface PropertyParkingStatsData {
   revenue: number[]
   currency: string
   totalSlots: number
+  zones?: Array<{ id: string; name: string; slots: number; occupied: number }>
+}
+
+export interface PropertySlotItem {
+  id: string
+  type: 'parking' | 'ev'
+  zoneId: string
+  status: string
+  reservedUntil: string | null
+  powerKw?: number
+}
+
+export interface PropertySlotsData {
+  slots: PropertySlotItem[]
+  total: number
+}
+
+export interface PropertyDynamicPricingData {
+  parkingRates: Array<{ zoneId: string; basePerHour: number; peakMultiplier: number; peakHours: string }>
+  evRates: Array<{ ratePerKwh: number; offPeakPerKwh: number; offPeakHours: string }>
+  overrides: Array<{ id: string; zoneId: string; reason: string; multiplier: number; validFrom: string; validTo: string }>
+}
+
+export interface PropertyEvChargingData {
+  stations: Array<{ id: string; name: string; connectors: number; available: number; inUse: number; powerKw: number; status: string }>
+  totalSessionsToday: number
+  totalKwhToday: number
+}
+
+export interface PropertyLoadBalancingData {
+  totalDrawKw: number
+  capacityKw: number
+  utilizationPercent: number
+  byStation: Array<{ stationId: string; drawKw: number; capacityKw: number; status: string }>
+  alerts: unknown[]
+}
+
+export interface PropertyRevenueAnalyticsData {
+  bySource: Array<{ source: string; amount: number; percent: number; period: string }>
+  byPeriod: Array<{ period: string; parking: number; ev: number }>
+  currency: string
+}
+
+export interface PropertyPeakTrafficData {
+  forecast: Array<{ hour: string; occupancyPercent: number; chargingDemandKw: number }>
+  peakWindows: Array<{ start: string; end: string; label: string; suggestedMultiplier: number }>
+}
+
+export interface PropertyAccessControlData {
+  rules: Array<{ id: string; name: string; type: string; access: string[]; active: boolean }>
+  allowlist: Array<{ id: string; label: string; count: number }>
+  blocklist: Array<{ id: string; label: string; count: number }>
+  recentLog: Array<{ at: string; action: string; gateId: string; vehicleId: string }>
+}
+
+export interface PropertyCarbonImpactData {
+  kwhDeliveredToday: number
+  kwhDeliveredMonth: number
+  co2AvoidedKgMonth: number
+  equivalentIceKm: number
+  trend: Array<{ month: string; kwh: number; co2Kg: number }>
 }
 
 export interface ParkingLotItem {
@@ -1296,7 +1568,11 @@ function parseErrorResponse(text: string, status: number): string {
   }
   try {
     const obj = JSON.parse(text) as { error?: string; message?: string }
-    return (obj?.error ?? obj?.message ?? text) || `Request failed (${status})`
+    const msg = obj?.error ?? obj?.message ?? text
+    if (status === 404 && (msg === 'Not found' || String(msg).toLowerCase().includes('not found'))) {
+      return 'Technician API not available. Start the backend: in autosphere_full_production_monorepo/services/backend run "npm start", then ensure the dev server proxy targets http://localhost:3000.'
+    }
+    return msg || `Request failed (${status})`
   } catch {
     return text || `Request failed (${status})`
   }
@@ -1404,7 +1680,94 @@ export const api = {
   getFleetReports: () => get<FleetReportItem[]>('/api/fleet/reports'),
   getFleetOrganizations: () => get<FleetOrganizationItem[]>('/api/fleet/organizations'),
   getFleetRoles: () => get<FleetRoleItem[]>('/api/fleet/roles'),
+  getFleetPermissionsMatrix: () => get<FleetPermissionsMatrix>('/api/fleet/permissions-matrix'),
+  getFleetUsers: () => get<FleetUserItem[]>('/api/fleet/users'),
   getFleetTrips: (limit = 50) => get<FleetTripItem[]>(`/api/fleet/trips?limit=${limit}`),
+  getFleetTripsAssigned: (driverId: string, limit = 50) =>
+    get<FleetTripItem[]>(`/api/fleet/trips/assigned?driverId=${encodeURIComponent(driverId)}&limit=${limit}`),
+  bookFleetTrip: (body: { passengerId?: string; startLocation?: string; endLocation?: string; date?: string }) =>
+    fetch(`${API_BASE}/api/fleet/trips`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetTripItem>
+    }),
+  updateFleetTripStatus: (tripId: string, status: FleetTripItem['status']) =>
+    fetch(`${API_BASE}/api/fleet/trips/${tripId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetTripItem>
+    }),
+  assignFleetTrip: (tripId: string, body: { driverId?: string; vehicleId?: string }) =>
+    fetch(`${API_BASE}/api/fleet/trips/${tripId}/assign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetTripItem>
+    }),
+  respondFleetTrip: (tripId: string, body: { driverId: string; action: 'accept' | 'reject' }) =>
+    fetch(`${API_BASE}/api/fleet/trips/${tripId}/respond`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetTripItem>
+    }),
+  getFleetTripsPassenger: (passengerId: string, limit = 50) =>
+    get<FleetTripItem[]>(
+      `/api/fleet/trips/passenger?passengerId=${encodeURIComponent(passengerId)}&limit=${limit}`
+    ),
+  getFleetPassengerBilling: (passengerId?: string) =>
+    get<FleetPassengerBillingData>(
+      `/api/fleet/billing/passenger${passengerId ? `?passengerId=${encodeURIComponent(passengerId)}` : ''}`
+    ),
+  getFleetVehiclesPublic: () => get<FleetPublicVehiclesResponse>('/api/fleet/vehicles/public'),
+  getFleetActivityLog: (limit = 80) => get<FleetActivityLogItem[]>(`/api/fleet/activity-log?limit=${limit}`),
+  getFleetSettings: () => get<FleetSystemSettingsData>('/api/fleet/settings'),
+  saveFleetSettings: (body: Partial<FleetSystemSettingsData>) =>
+    fetch(`${API_BASE}/api/fleet/settings`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetSystemSettingsData>
+    }),
+  patchFleetUserRole: (userId: string, body: { roleSlug: string; actorUserId?: string }) =>
+    fetch(`${API_BASE}/api/fleet/users/${encodeURIComponent(userId)}/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetUserItem & { updated?: boolean }>
+    }),
 
   getWeather: (lat?: number, lng?: number) =>
     getWithQuery<WeatherData>('/api/weather', { lat: lat ?? 37.77, lng: lng ?? -122.41 }),
@@ -1548,11 +1911,64 @@ export const api = {
   getInsuranceComplianceReporting: () => get<InsuranceComplianceReportingData>('/api/insurance/compliance-reporting'),
   getInsuranceApiIntegrationSettings: () => get<InsuranceApiIntegrationSettingsData>('/api/insurance/api-integration-settings'),
   getTechnicianJobs: () => get<TechnicianJobItem[]>('/api/technician/jobs'),
+  getDiagnosticTwinList: () => get<VehicleDiagnosticTwinListItem[]>('/api/technician/diagnostic-twin/list'),
+  getDiagnosticTwin: (params?: { vehicleId?: string; vin?: string; plate?: string }) => {
+    if (!params || (!params.vehicleId && !params.vin && !params.plate))
+      return get<VehicleDiagnosticTwinData>('/api/technician/diagnostic-twin')
+    const q: Record<string, string> = {}
+    if (params.vehicleId) q.vehicleId = params.vehicleId
+    if (params.vin) q.vin = params.vin
+    if (params.plate) q.plate = params.plate
+    return getWithQuery<VehicleDiagnosticTwinData>('/api/technician/diagnostic-twin', q)
+  },
+  runDiagnosticScan: (params: { plateNumber?: string; vin?: string }) =>
+    fetch(`${API_BASE}/api/technician/diagnostic-twin/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error((data as { message?: string }).message || 'Scan failed')
+      return data as { success: boolean; twin: VehicleDiagnosticTwinData; message: string }
+    }),
+  getTechnicianProfile: () => get<TechnicianProfileData>('/api/technician/profile'),
+  getTechnicianAiFaults: (jobId?: string) =>
+    jobId ? getWithQuery<TechnicianAiFaultsData>('/api/technician/ai-faults', { jobId }) : get<TechnicianAiFaultsData>('/api/technician/ai-faults'),
+  getTechnicianRepairRecommendations: (jobId?: string) =>
+    jobId ? getWithQuery<TechnicianRepairRecommendationsData>('/api/technician/repair-recommendations', { jobId }) : get<TechnicianRepairRecommendationsData>('/api/technician/repair-recommendations'),
+  getTechnicianPartsPrediction: (jobId?: string) =>
+    jobId ? getWithQuery<TechnicianPartsPredictionData>('/api/technician/parts-prediction', { jobId }) : get<TechnicianPartsPredictionData>('/api/technician/parts-prediction'),
+  getTechnicianWorkflow: (jobId?: string) =>
+    jobId ? getWithQuery<TechnicianWorkflowData>('/api/technician/workflow', { jobId }) : get<TechnicianWorkflowData>('/api/technician/workflow'),
+  getTechnicianTimeEstimate: (jobId?: string) =>
+    jobId ? getWithQuery<TechnicianTimeEstimateData>('/api/technician/time-estimate', { jobId }) : get<TechnicianTimeEstimateData>('/api/technician/time-estimate'),
+  updateTechnicianTimeEstimate: (params: { jobId?: string; action: 'start' | 'update' | 'complete'; actualMinutes?: number }) =>
+    fetch(`${API_BASE}/api/technician/time-estimate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error((data as { error?: string }).error || 'Update failed')
+      return data as TechnicianTimeEstimateData
+    }),
+  getTechnicianArSteps: (jobId?: string) =>
+    jobId ? getWithQuery<{ steps: TechnicianArStep[] }>('/api/technician/ar-steps', { jobId }) : get<{ steps: TechnicianArStep[] }>('/api/technician/ar-steps'),
+  getTechnicianPerformance: () => get<TechnicianPerformanceData>('/api/technician/performance'),
+  getTechnicianEarnings: () => get<TechnicianEarningsData>('/api/technician/earnings'),
   getDriverTechnicianProfile: (driverId?: string) =>
     get<DriverTechnicianProfileData>('/api/driver/technician-profile', driverId),
   getDriverLiveRepair: (driverId?: string) =>
     get<DriverLiveRepairData>('/api/driver/live-repair', driverId),
   getPropertyParkingStats: () => get<PropertyParkingStatsData>('/api/property/parking-stats'),
+  getPropertySlots: () => get<PropertySlotsData>('/api/property/slots'),
+  getPropertyDynamicPricing: () => get<PropertyDynamicPricingData>('/api/property/dynamic-pricing'),
+  getPropertyEvCharging: () => get<PropertyEvChargingData>('/api/property/ev-charging'),
+  getPropertyLoadBalancing: () => get<PropertyLoadBalancingData>('/api/property/load-balancing'),
+  getPropertyRevenueAnalytics: () => get<PropertyRevenueAnalyticsData>('/api/property/revenue-analytics'),
+  getPropertyPeakTraffic: () => get<PropertyPeakTrafficData>('/api/property/peak-traffic'),
+  getPropertyAccessControl: () => get<PropertyAccessControlData>('/api/property/access-control'),
+  getPropertyCarbonImpact: () => get<PropertyCarbonImpactData>('/api/property/carbon-impact'),
   getGovernmentRecallsSummary: (make?: string, year?: number) =>
     getWithQuery<GovernmentRecallsSummaryData>('/api/government/recalls-summary', { make: make ?? 'Toyota', year: year ?? 2024 }),
   getDealerInventory: () => get<DealerInventoryItem[]>('/api/dealer/inventory'),

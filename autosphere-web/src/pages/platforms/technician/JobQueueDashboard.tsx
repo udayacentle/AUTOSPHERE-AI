@@ -1,26 +1,21 @@
 import TechnicianScreen from './TechnicianScreen'
+import './TechnicianSections.css'
 import { api, type TechnicianJobItem } from '../../../api/client'
 import { useApiData } from '../../../hooks/useApiData'
 import { useI18n } from '../../../i18n/context'
+import { FALLBACK_JOBS } from './technicianFallbacks'
 
 export default function JobQueueDashboard() {
   const { t } = useI18n()
-  const { data: jobs = [], loading, error, refetch } = useApiData<TechnicianJobItem[]>(() =>
+  const { data: jobsData, loading, error, refetch } = useApiData<TechnicianJobItem[] | null>(() =>
     api.getTechnicianJobs()
   )
+  const jobs = (Array.isArray(jobsData) && jobsData.length > 0 ? jobsData : error ? FALLBACK_JOBS : []) as TechnicianJobItem[]
 
-  if (loading) {
+  if (loading && jobs.length === 0) {
     return (
       <TechnicianScreen title="Job Queue Dashboard" subtitle="Assigned jobs and repair queue">
         <p style={{ color: 'var(--text-secondary)' }}>{t('common.loading')}</p>
-      </TechnicianScreen>
-    )
-  }
-  if (error) {
-    return (
-      <TechnicianScreen title="Job Queue Dashboard" subtitle="Assigned jobs and repair queue">
-        <p style={{ color: 'var(--danger)' }}>{error}</p>
-        <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </TechnicianScreen>
     )
   }
@@ -31,6 +26,12 @@ export default function JobQueueDashboard() {
 
   return (
     <TechnicianScreen title="Job Queue Dashboard" subtitle="Real jobs from fleet maintenance">
+      {error && (
+        <div className="tech-offline-banner" style={{ marginBottom: '1rem' }}>
+          <span>Showing sample data. Start backend in <code>autosphere_full_production_monorepo/services/backend</code> for live data.</span>
+          <button type="button" className="btn-refresh" onClick={() => refetch()}>Retry</button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <button type="button" className="btn-refresh" onClick={() => refetch()}>{t('common.refresh')}</button>
       </div>

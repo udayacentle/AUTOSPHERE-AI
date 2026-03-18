@@ -16,10 +16,17 @@ Express API used by the AutoSphere web app. Supports **optional MongoDB**: when 
 
 2. Copy `.env.example` to `.env` and set `JWT_SECRET`, `PORT`. To use the database, set `MONGODB_URI` (e.g. `mongodb://localhost:27017/autosphere`).
 
-3. **Seed the database** (only when using MongoDB): run once to insert sample driver data (profile, trips, vehicle health, insurance, mobility score):
-   ```bash
-   npm run seed
-   ```
+3. **Sample data and database seeding** (when using MongoDB):
+   - **Auto-seed on startup:** With `MONGODB_URI` set, the server automatically seeds fleet, vehicle diagnostic twin, and technician sample data when MongoDB connects. No extra step needed for technician/diagnostic sections.
+   - **Full seed (optional):** To load all sample data (profiles, trips, vehicle health, insurance, fleet, technician, diagnostic twin), run once:
+     ```bash
+     npm run seed
+     ```
+   - **Seed via API:** You can also trigger the same technician/fleet/diagnostic seed by calling:
+     ```bash
+     curl -X POST http://localhost:3000/api/seed
+     ```
+     This uploads the same sample data to the database without running the seed script.
 
 ## Start the server
 

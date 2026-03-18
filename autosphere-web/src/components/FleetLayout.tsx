@@ -1,11 +1,16 @@
 import { useRef, useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { FleetVehiclesProvider } from '../contexts/FleetVehiclesContext'
+import { FleetRoleProvider, useFleetRole } from '../contexts/FleetRoleContext'
+import { isFleetPathAllowed, FLEET_ROLE_HOME } from '../config/fleetRoleAccess'
+import FleetRoleBanner from './FleetRoleBanner'
 import './DriverLayout.css'
 
-export default function FleetLayout() {
+function FleetLayoutInner() {
   const mainRef = useRef<HTMLDivElement>(null)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { role } = useFleetRole()
 
   useEffect(() => {
     const scrollToTop = () => {
@@ -31,11 +36,31 @@ export default function FleetLayout() {
     }
   }, [pathname])
 
+  useEffect(() => {
+    if (pathname === '/app/fleet' && role === 'guest') {
+      navigate('/app/fleet/guest-fleet', { replace: true })
+    }
+  }, [pathname, role, navigate])
+
+  const pathSeg = pathname.replace(/^\/app\/fleet\/?/, '').split('/')[0] || ''
+  if (pathSeg && !isFleetPathAllowed(role, pathSeg)) {
+    return <Navigate to={`/app/fleet/${FLEET_ROLE_HOME[role]}`} replace />
+  }
+
   return (
     <FleetVehiclesProvider>
+      <FleetRoleBanner />
       <div className="driver-main platform-content" ref={mainRef}>
         <Outlet />
       </div>
     </FleetVehiclesProvider>
+  )
+}
+
+export default function FleetLayout() {
+  return (
+    <FleetRoleProvider>
+      <FleetLayoutInner />
+    </FleetRoleProvider>
   )
 }

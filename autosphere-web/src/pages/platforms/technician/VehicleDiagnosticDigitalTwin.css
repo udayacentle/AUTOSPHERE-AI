@@ -1,0 +1,265 @@
+.diagnostic-twin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.diagnostic-twin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.diagnostic-twin-select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.diagnostic-twin-select {
+  min-width: 280px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.diagnostic-twin-scan-btn {
+  margin-left: auto;
+}
+
+/* Summary / digital twin card */
+.diagnostic-twin-summary .diagnostic-twin-section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.diagnostic-twin-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.diagnostic-twin-visual {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.diagnostic-twin-car-icon {
+  font-size: 2.5rem;
+}
+
+.diagnostic-twin-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.diagnostic-twin-meta h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.diagnostic-twin-vin,
+.diagnostic-twin-odo,
+.diagnostic-twin-scan {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.diagnostic-twin-overall {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.diagnostic-twin-overall.diagnostic-twin-health--good {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success, #22c55e);
+}
+
+.diagnostic-twin-overall.diagnostic-twin-health--fair {
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--warning, #eab308);
+}
+
+.diagnostic-twin-overall.diagnostic-twin-health--low {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger, #ef4444);
+}
+
+.diagnostic-twin-components {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.diagnostic-twin-component {
+  display: grid;
+  grid-template-columns: 140px 1fr 3rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.diagnostic-twin-component-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.diagnostic-twin-component-bar-wrap {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.diagnostic-twin-component-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.diagnostic-twin-component-bar.diagnostic-twin-health--good {
+  background: var(--success, #22c55e);
+}
+
+.diagnostic-twin-component-bar.diagnostic-twin-health--fair {
+  background: var(--warning, #eab308);
+}
+
+.diagnostic-twin-component-bar.diagnostic-twin-health--low {
+  background: var(--danger, #ef4444);
+}
+
+.diagnostic-twin-component-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Codes table */
+.diagnostic-twin-codes .diagnostic-twin-section-title,
+.diagnostic-twin-sensors .diagnostic-twin-section-title,
+.diagnostic-twin-service .diagnostic-twin-section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.diagnostic-twin-table-wrap {
+  overflow-x: auto;
+}
+
+.diagnostic-twin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.diagnostic-twin-table th,
+.diagnostic-twin-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.diagnostic-twin-table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+
+.diagnostic-twin-table td code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  padding: 0.15rem 0.35rem;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+}
+
+.diagnostic-twin-code--critical {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.diagnostic-twin-code--warning {
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.diagnostic-twin-code--info {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.diagnostic-twin-empty {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Sensor grid */
+.diagnostic-twin-sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.diagnostic-twin-sensor-card {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.diagnostic-twin-sensor-card.diagnostic-twin-sensor--normal {
+  border-left: 3px solid var(--success, #22c55e);
+}
+
+.diagnostic-twin-sensor-card.diagnostic-twin-sensor--warning {
+  border-left: 3px solid var(--warning, #eab308);
+}
+
+.diagnostic-twin-sensor-card.diagnostic-twin-sensor--critical {
+  border-left: 3px solid var(--danger, #ef4444);
+}
+
+.diagnostic-twin-sensor-name {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.diagnostic-twin-sensor-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.diagnostic-twin-sensor-status {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .diagnostic-twin-component {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .diagnostic-twin-component-value {
+    grid-column: 2;
+    text-align: right;
+  }
+}

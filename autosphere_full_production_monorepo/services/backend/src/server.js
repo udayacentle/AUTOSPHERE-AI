@@ -18,11 +18,31 @@ import FleetMaintenance from "./models/FleetMaintenance.js";
 import FleetReport from "./models/FleetReport.js";
 import FleetOrganization from "./models/FleetOrganization.js";
 import FleetRole from "./models/FleetRole.js";
+import FleetUser from "./models/FleetUser.js";
+import FleetActivityLog from "./models/FleetActivityLog.js";
+import VehicleDiagnosticTwin from "./models/VehicleDiagnosticTwin.js";
+import TechnicianProfile from "./models/TechnicianProfile.js";
+import TechnicianJobExtra from "./models/TechnicianJobExtra.js";
+import TechnicianStats from "./models/TechnicianStats.js";
 import { getWeather, getRecalls, REAL_SERVICE_CENTERS, EMISSION_FACTORS } from "./services/realWorldApis.js";
 
 dotenv.config();
 
 connectDB();
+
+// When MongoDB connects, run all seed functions so sample data exists (avoids "not found" on first load)
+async function runStartupSeed() {
+  if (!isDbConnected()) return;
+  try {
+    await ensureFleetExtendedSeed();
+    await ensureDiagnosticTwinSeed();
+    await ensureTechnicianSeed();
+    console.log("Startup seed: sample data ready (fleet, diagnostic twin, technician).");
+  } catch (err) {
+    console.error("Startup seed error:", err);
+  }
+}
+mongoose.connection.once("open", runStartupSeed);
 
 const app = express();
 
@@ -197,12 +217,15 @@ app.get("/vehicles/1", (req, res) => {
 
 // Real-world seed data: cities (US/India), real car models, real insurance brands
 const sampleTripsForSeed = [
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-12", distanceKm: 45, durationMin: 62, startLocation: "San Francisco, CA", endLocation: "SFO Airport", score: 88 },
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-11", distanceKm: 23, durationMin: 35, startLocation: "Oakland", endLocation: "Downtown SF", score: 92 },
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-10", distanceKm: 78, durationMin: 95, startLocation: "San Jose", endLocation: "Palo Alto", score: 85 },
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-09", distanceKm: 12, durationMin: 18, startLocation: "Mission District", endLocation: "SOMA", score: 90 },
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-08", distanceKm: 56, durationMin: 72, startLocation: "SFO Airport", endLocation: "Berkeley", score: 82 },
-  { driverId: DEFAULT_DRIVER_ID, date: "2025-03-07", distanceKm: 34, durationMin: 44, startLocation: "Sunnyvale", endLocation: "Mountain View", score: 87 },
+  { driverId: DEFAULT_DRIVER_ID, passengerId: "user-passenger-1", date: "2025-03-12", distanceKm: 45, durationMin: 62, startLocation: "San Francisco, CA", endLocation: "SFO Airport", score: 88, status: "completed" },
+  { driverId: DEFAULT_DRIVER_ID, passengerId: "user-passenger-2", date: "2025-03-11", distanceKm: 23, durationMin: 35, startLocation: "Oakland", endLocation: "Downtown SF", score: 92, status: "completed" },
+  { driverId: "user-driver-1", passengerId: "user-passenger-1", date: "2025-03-10", distanceKm: 78, durationMin: 95, startLocation: "San Jose", endLocation: "Palo Alto", score: 85, status: "completed" },
+  { driverId: "user-driver-2", passengerId: null, date: "2025-03-15", distanceKm: 0, durationMin: 0, startLocation: "Downtown SF", endLocation: "SFO Airport", score: 0, status: "in_progress" },
+  { driverId: null, passengerId: "user-passenger-2", date: "2025-03-16", distanceKm: 0, durationMin: 0, startLocation: "Berkeley", endLocation: "Oakland", score: 0, status: "pending" },
+  { driverId: "user-driver-1", passengerId: "user-passenger-1", date: "2025-03-09", distanceKm: 12, durationMin: 18, startLocation: "Mission District", endLocation: "SOMA", score: 90, status: "completed" },
+  { driverId: "user-driver-2", passengerId: "user-passenger-2", date: "2025-03-08", distanceKm: 56, durationMin: 72, startLocation: "SFO Airport", endLocation: "Berkeley", score: 82, status: "completed" },
+  { driverId: null, passengerId: "user-passenger-1", date: "2025-03-17", distanceKm: 0, durationMin: 0, startLocation: "Palo Alto", endLocation: "San Jose", score: 0, status: "pending" },
+  { driverId: "user-driver-1", passengerId: "user-passenger-2", date: "2025-03-18", distanceKm: 0, durationMin: 0, startLocation: "Hayward", endLocation: "Fremont", score: 0, status: "assigned" },
 ];
 
 async function ensureDriverSeed() {
@@ -588,6 +611,41 @@ app.get("/api/drivers", (req, res) => {
   res.json([]);
 });
 
+const fleetActivityMemory = [];
+async function logFleetActivity(entry) {
+  const row = {
+    action: entry.action || "event",
+    summary: entry.summary || "",
+    actorUserId: entry.actorUserId || "",
+    targetType: entry.targetType || "",
+    targetId: entry.targetId || "",
+    meta: entry.meta && typeof entry.meta === "object" ? entry.meta : {},
+    organizationId: entry.organizationId || null,
+  };
+  if (!isDbConnected()) {
+    fleetActivityMemory.unshift({
+      _id: `mem-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ...row,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    while (fleetActivityMemory.length > 150) fleetActivityMemory.pop();
+    return;
+  }
+  try {
+    await FleetActivityLog.create(row);
+  } catch (e) {
+    console.error("Fleet activity log error:", e);
+  }
+}
+
+const defaultFleetActivitySamples = [
+  { action: "trip_booked", summary: "Passenger booked ride Berkeley → Oakland", actorUserId: "user-passenger-2", targetType: "trip", targetId: "seed-1" },
+  { action: "trip_assigned", summary: "Trip assigned to driver user-driver-1", actorUserId: "user-entity-1", targetType: "trip", targetId: "seed-2" },
+  { action: "user_role_changed", summary: "Guest role reviewed (compliance)", actorUserId: "user-super-1", targetType: "user", targetId: "user-guest-1", meta: { roleSlug: "guest" } },
+  { action: "trip_status", summary: "Trip marked completed", actorUserId: "user-driver-1", targetType: "trip", targetId: "seed-3" },
+];
+
 // --- Fleet management (single source: defaultFleetVehicles / FleetVehicle collection) ---
 const defaultFleetVehicles = [
   { plateNumber: "AB-1234", model: "Ford Transit", status: "active", latitude: 37.7749, longitude: -122.4194 },
@@ -605,6 +663,8 @@ const defaultFleetMaintenance = [
   { vehiclePlate: "AB-1234", type: "Oil Change", date: "2025-03-15", description: "Regular oil and filter change", status: "completed", cost: 85 },
   { vehiclePlate: "CD-5678", type: "Tire Rotation", date: "2025-03-20", description: "Rotate tires and balance", status: "scheduled", cost: null },
   { vehiclePlate: "EF-9012", type: "Brake Inspection", date: "2025-03-25", description: "Full brake pad and rotor check", status: "scheduled", cost: null },
+  { vehiclePlate: "AB-1234", type: "Air Filter Replacement", date: "2025-03-18", description: "Cabin and engine air filter", status: "in_progress", cost: null },
+  { vehiclePlate: "CD-5678", type: "Battery Test", date: "2025-03-22", description: "Load test and charging system check", status: "pending", cost: null },
 ];
 const defaultFleetReports = [
   { period: "March 2025", totalTrips: 120, totalDistanceKm: 2450, totalFuelUsed: 320, maintenanceCount: 5, alerts: 2 },
@@ -623,12 +683,33 @@ const defaultFleetOrganizations = [
   { name: "AutoSphere Fleet West", slug: "autosphere-west", contactEmail: "fleet-west@autosphere.ai", contactPhone: "+1-415-555-0100", address: "San Francisco, CA", status: "active" },
   { name: "Metro Logistics", slug: "metro-logistics", contactEmail: "admin@metrologistics.com", contactPhone: "+1-415-555-0200", address: "Oakland, CA", status: "active" },
 ];
+
+// BRD: Fleet Management System – Role & Permission (Driver, Passenger, Entity Admin, Super Admin, Guest User)
 const defaultFleetRoles = [
-  { name: "Fleet Admin", slug: "fleet-admin", description: "Full access to fleet, organizations, and users", permissions: ["fleet:read", "fleet:write", "orgs:manage", "roles:manage"] },
-  { name: "Fleet Manager", slug: "fleet-manager", description: "Manage vehicles, drivers, and maintenance", permissions: ["fleet:read", "fleet:write", "vehicles:manage", "drivers:manage"] },
-  { name: "Driver", slug: "driver", description: "View own trips and vehicle", permissions: ["fleet:read", "trips:read"] },
-  { name: "Viewer", slug: "viewer", description: "Read-only fleet dashboard", permissions: ["fleet:read"] },
+  { name: "Driver", slug: "driver", description: "View assigned trips; accept/reject trips; update trip status (Start, In Progress, Completed); access navigation. No access to management or reports.", permissions: ["view_vehicles:limited", "update_trip_status", "manage_trips:assigned"] },
+  { name: "Passenger", slug: "passenger", description: "Book or schedule rides; track trips; view trip history; access basic billing. Limited to own data.", permissions: ["view_vehicles:limited", "book_ride", "manage_trips:own", "billing:limited"] },
+  { name: "Entity Admin", slug: "entity_admin", description: "Manage vehicles, drivers, passengers; assign and monitor trips; access reports and analytics; view billing. Limited to one organization.", permissions: ["view_vehicles:full", "book_ride", "manage_trips:full", "update_trip_status", "manage_vehicles", "manage_users", "reports_analytics", "billing:full", "system_config:limited"] },
+  { name: "Super Admin", slug: "super_admin", description: "Full system control; manage all organizations; configure system settings; access all reports; manage roles and permissions.", permissions: ["view_vehicles:full", "book_ride", "manage_trips:full", "update_trip_status", "manage_vehicles", "manage_users", "reports_analytics", "billing:full", "system_config:full", "multi_organization"] },
+  { name: "Guest User", slug: "guest", description: "View limited public information. No booking or management access.", permissions: ["view_vehicles:limited"] },
 ];
+
+// BRD Section 4: Permissions Matrix (Feature -> Role -> Access)
+const permissionsMatrix = {
+  roles: ["Driver", "Passenger", "Entity Admin", "Super Admin", "Guest User"],
+  features: [
+    { id: "view_vehicles", name: "View Vehicles", driver: "Limited", passenger: "Limited", entity_admin: "Full", super_admin: "Full", guest: "Limited" },
+    { id: "book_ride", name: "Book Ride", driver: "No", passenger: "Yes", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "manage_trips", name: "Manage Trips", driver: "Assigned", passenger: "Own", entity_admin: "Full", super_admin: "Full", guest: "No" },
+    { id: "update_trip_status", name: "Update Trip Status", driver: "Yes", passenger: "No", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "manage_vehicles", name: "Manage Vehicles", driver: "No", passenger: "No", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "manage_users", name: "Manage Users", driver: "No", passenger: "No", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "reports_analytics", name: "Reports & Analytics", driver: "No", passenger: "No", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "billing_access", name: "Billing Access", driver: "No", passenger: "Limited", entity_admin: "Yes", super_admin: "Yes", guest: "No" },
+    { id: "system_config", name: "System Configuration", driver: "No", passenger: "No", entity_admin: "Limited", super_admin: "Full", guest: "No" },
+    { id: "multi_organization", name: "Multi-Organization", driver: "No", passenger: "No", entity_admin: "No", super_admin: "Yes", guest: "No" },
+  ],
+  principles: ["Least Privilege: Users only get required access", "Role Hierarchy: Super Admin > Entity Admin > Others", "Data Isolation: Users access only relevant data"],
+};
 
 async function ensureFleetExtendedSeed() {
   if (!isDbConnected()) return;
@@ -649,6 +730,16 @@ async function ensureFleetExtendedSeed() {
   }
 }
 
+const defaultFleetUsers = [
+  { userId: "user-super-1", email: "admin@autosphere.ai", fullName: "System Super Admin", roleSlug: "super_admin", status: "active" },
+  { userId: "user-entity-1", email: "fleet.admin@autosphere-west.com", fullName: "Jane Fleet Admin", roleSlug: "entity_admin", status: "active" },
+  { userId: "user-driver-1", email: "james.w@fleet.com", fullName: "James Wilson", roleSlug: "driver", status: "active" },
+  { userId: "user-driver-2", email: "maria.s@fleet.com", fullName: "Maria Santos", roleSlug: "driver", status: "active" },
+  { userId: "user-passenger-1", email: "passenger1@example.com", fullName: "Alex Rider", roleSlug: "passenger", status: "active" },
+  { userId: "user-passenger-2", email: "passenger2@example.com", fullName: "Sam Carter", roleSlug: "passenger", status: "active" },
+  { userId: "user-guest-1", email: "guest@example.com", fullName: "Guest Viewer", roleSlug: "guest", status: "active" },
+];
+
 async function ensureFleetAdminSeed() {
   if (!isDbConnected()) return;
   if ((await FleetOrganization.countDocuments()) === 0) {
@@ -657,7 +748,17 @@ async function ensureFleetAdminSeed() {
   }
   if ((await FleetRole.countDocuments()) === 0) {
     await FleetRole.insertMany(defaultFleetRoles);
-    console.log("Fleet: seeded roles.");
+    console.log("Fleet: seeded roles (BRD).");
+  }
+  if ((await FleetUser.countDocuments()) === 0) {
+    const firstOrg = await FleetOrganization.findOne().lean();
+    const orgId = firstOrg ? firstOrg._id : null;
+    const usersToInsert = defaultFleetUsers.map((u, i) => ({
+      ...u,
+      organizationId: i === 0 ? null : orgId,
+    }));
+    await FleetUser.insertMany(usersToInsert);
+    console.log("Fleet: seeded users (BRD roles).");
   }
 }
 
@@ -796,6 +897,24 @@ app.get("/api/fleet/roles", async (req, res) => {
   }
 });
 
+app.get("/api/fleet/permissions-matrix", (req, res) => {
+  res.json(permissionsMatrix);
+});
+
+app.get("/api/fleet/users", async (req, res) => {
+  try {
+    if (!isDbConnected()) {
+      return res.json(defaultFleetUsers.map((u, i) => ({ _id: `user-${i}`, ...u, id: `user-${i}` })));
+    }
+    await ensureFleetAdminSeed();
+    const list = await FleetUser.find().populate("organizationId", "name slug").lean();
+    return res.json(list.map((u) => ({ ...u, id: u._id?.toString() })));
+  } catch (err) {
+    console.error("Fleet users error:", err);
+    return res.json(defaultFleetUsers.map((u, i) => ({ _id: `user-${i}`, ...u, id: `user-${i}` })));
+  }
+});
+
 app.get("/api/fleet/trips", async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
   try {
@@ -803,20 +922,393 @@ app.get("/api/fleet/trips", async (req, res) => {
       return res.json(sampleTripsForSeed.map((t, i) => ({ id: `trip-${i}`, ...t })));
     }
     await ensureDriverSeed();
+    await ensureFleetAdminSeed();
     const list = await Trip.find().sort({ date: -1 }).limit(limit).lean();
     return res.json(list.map((t) => ({
       id: t._id?.toString(),
+      driverId: t.driverId ?? null,
+      passengerId: t.passengerId ?? null,
+      date: t.date,
+      distanceKm: t.distanceKm ?? 0,
+      durationMin: t.durationMin ?? 0,
+      startLocation: t.startLocation || "",
+      endLocation: t.endLocation || "",
+      score: t.score ?? 0,
+      status: t.status || "pending",
+      vehicleId: t.vehicleId ?? null,
+    })));
+  } catch (err) {
+    console.error("Fleet trips error:", err);
+    return res.json(sampleTripsForSeed.map((t, i) => ({ id: `trip-${i}`, ...t })));
+  }
+});
+
+app.post("/api/fleet/trips", async (req, res) => {
+  const { passengerId, startLocation, endLocation, date } = req.body || {};
+  const payload = {
+    passengerId: passengerId || null,
+    startLocation: startLocation || "",
+    endLocation: endLocation || "",
+    date: date || new Date().toISOString().slice(0, 10),
+    distanceKm: 0,
+    durationMin: 0,
+    score: 0,
+    status: "pending",
+    driverId: null,
+    vehicleId: null,
+  };
+  if (!isDbConnected()) {
+    const oid = `trip-offline-${Date.now()}`;
+    await logFleetActivity({
+      action: "trip_booked",
+      summary: `Ride booked ${payload.startLocation} → ${payload.endLocation}`,
+      actorUserId: passengerId || "passenger",
+      targetType: "trip",
+      targetId: oid,
+      meta: { passengerId },
+    });
+    return res.status(201).json({ id: oid, ...payload });
+  }
+  try {
+    const trip = await Trip.create(payload);
+    const t = trip.toObject ? trip.toObject() : trip;
+    const tid = t._id?.toString();
+    await logFleetActivity({
+      action: "trip_booked",
+      summary: `Ride booked ${t.startLocation} → ${t.endLocation}`,
+      actorUserId: t.passengerId || "passenger",
+      targetType: "trip",
+      targetId: tid,
+      meta: { passengerId: t.passengerId },
+    });
+    return res.status(201).json({
+      id: t._id?.toString(),
       driverId: t.driverId,
+      passengerId: t.passengerId,
+      date: t.date,
+      distanceKm: t.distanceKm,
+      durationMin: t.durationMin,
+      startLocation: t.startLocation,
+      endLocation: t.endLocation,
+      score: t.score,
+      status: t.status,
+      vehicleId: t.vehicleId,
+    });
+  } catch (err) {
+    console.error("Fleet trip book error:", err);
+    return res.status(500).json({ message: "Failed to book trip." });
+  }
+});
+
+app.patch("/api/fleet/trips/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body || {};
+  const allowed = ["pending", "assigned", "in_progress", "completed", "rejected"];
+  if (!status || !allowed.includes(status)) {
+    return res.status(400).json({ message: "Invalid status. Use one of: " + allowed.join(", ") });
+  }
+  if (!isDbConnected()) {
+    await logFleetActivity({ action: "trip_status", summary: `Trip ${id} → ${status}`, targetType: "trip", targetId: id, meta: { status } });
+    return res.json({ id, status, updated: true });
+  }
+  try {
+    const trip = await Trip.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    if (!trip) return res.status(404).json({ message: "Trip not found." });
+    await logFleetActivity({
+      action: "trip_status",
+      summary: `Trip ${id} → ${status}`,
+      actorUserId: trip.driverId || "",
+      targetType: "trip",
+      targetId: id,
+      meta: { status },
+    });
+    return res.json({
+      id: trip._id?.toString(),
+      driverId: trip.driverId,
+      passengerId: trip.passengerId,
+      date: trip.date,
+      status: trip.status,
+      startLocation: trip.startLocation,
+      endLocation: trip.endLocation,
+    });
+  } catch (err) {
+    console.error("Fleet trip status error:", err);
+    return res.status(500).json({ message: "Failed to update trip status." });
+  }
+});
+
+app.post("/api/fleet/trips/:id/assign", async (req, res) => {
+  const { id } = req.params;
+  const { driverId, vehicleId } = req.body || {};
+  if (!isDbConnected()) {
+    await logFleetActivity({
+      action: "trip_assigned",
+      summary: `Trip ${id} assigned to ${driverId || "driver"}`,
+      actorUserId: "user-entity-1",
+      targetType: "trip",
+      targetId: id,
+      meta: { driverId, vehicleId },
+    });
+    return res.json({ id, driverId: driverId || null, vehicleId: vehicleId || null, status: "assigned", updated: true });
+  }
+  try {
+    const trip = await Trip.findByIdAndUpdate(
+      id,
+      { driverId: driverId || null, vehicleId: vehicleId || null, status: "assigned" },
+      { new: true }
+    ).lean();
+    if (!trip) return res.status(404).json({ message: "Trip not found." });
+    await logFleetActivity({
+      action: "trip_assigned",
+      summary: `Trip assigned to ${trip.driverId}`,
+      actorUserId: "user-entity-1",
+      targetType: "trip",
+      targetId: trip._id?.toString(),
+      meta: { driverId: trip.driverId, vehicleId: trip.vehicleId },
+    });
+    return res.json({
+      id: trip._id?.toString(),
+      driverId: trip.driverId,
+      passengerId: trip.passengerId,
+      date: trip.date,
+      status: trip.status,
+      vehicleId: trip.vehicleId,
+      startLocation: trip.startLocation,
+      endLocation: trip.endLocation,
+    });
+  } catch (err) {
+    console.error("Fleet trip assign error:", err);
+    return res.status(500).json({ message: "Failed to assign trip." });
+  }
+});
+
+app.get("/api/fleet/trips/assigned", async (req, res) => {
+  const driverId = req.query.driverId || req.headers["x-driver-id"] || "";
+  const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+  if (!driverId) {
+    return res.json([]);
+  }
+  if (!isDbConnected()) {
+    const assigned = sampleTripsForSeed.filter((t) => t.driverId === driverId);
+    return res.json(assigned.map((t, i) => ({ id: `trip-assigned-${i}`, ...t })));
+  }
+  try {
+    const list = await Trip.find({ driverId, status: { $in: ["assigned", "in_progress"] } })
+      .sort({ date: -1 })
+      .limit(limit)
+      .lean();
+    return res.json(list.map((t) => ({
+      id: t._id?.toString(),
+      driverId: t.driverId,
+      passengerId: t.passengerId,
       date: t.date,
       distanceKm: t.distanceKm,
       durationMin: t.durationMin,
       startLocation: t.startLocation || "",
       endLocation: t.endLocation || "",
       score: t.score ?? 0,
+      status: t.status,
+      vehicleId: t.vehicleId,
     })));
   } catch (err) {
-    console.error("Fleet trips error:", err);
-    return res.json(sampleTripsForSeed.map((t, i) => ({ id: `trip-${i}`, ...t })));
+    console.error("Fleet assigned trips error:", err);
+    return res.json([]);
+  }
+});
+
+let fleetSystemSettings = {
+  siteName: "AutoSphere Fleet",
+  maintenanceWindowUtc: "Sun 02:00–04:00",
+  dataRetentionDays: 365,
+  requireMfaForAdmins: true,
+  complianceNote: "GDPR-aligned data handling; audit trail enabled per BRD §6.",
+};
+
+app.get("/api/fleet/settings", (req, res) => {
+  res.json(fleetSystemSettings);
+});
+
+app.put("/api/fleet/settings", (req, res) => {
+  const b = req.body || {};
+  fleetSystemSettings = {
+    ...fleetSystemSettings,
+    ...(b.siteName != null && { siteName: String(b.siteName) }),
+    ...(b.maintenanceWindowUtc != null && { maintenanceWindowUtc: String(b.maintenanceWindowUtc) }),
+    ...(typeof b.dataRetentionDays === "number" && { dataRetentionDays: b.dataRetentionDays }),
+    ...(typeof b.requireMfaForAdmins === "boolean" && { requireMfaForAdmins: b.requireMfaForAdmins }),
+    ...(b.complianceNote != null && { complianceNote: String(b.complianceNote) }),
+  };
+  logFleetActivity({
+    action: "system_settings_updated",
+    summary: "Fleet system settings updated",
+    actorUserId: req.headers["x-actor-user-id"] || "user-super-1",
+    targetType: "settings",
+    targetId: "global",
+  });
+  res.json(fleetSystemSettings);
+});
+
+app.get("/api/fleet/vehicles/public", (req, res) => {
+  const limited = defaultFleetVehicles.map((v) => ({
+    plateNumber: v.plateNumber,
+    model: v.model,
+    availability: v.status === "active" ? "Available" : "Limited",
+  }));
+  res.json({ vehicles: limited, notice: "Guest view — limited public information (BRD §3.5)" });
+});
+
+app.get("/api/fleet/billing/passenger", (req, res) => {
+  const passengerId = req.query.passengerId || "user-passenger-1";
+  res.json({
+    passengerId,
+    currency: "USD",
+    lines: [
+      { id: "b1", date: "2025-03-10", description: "Ride SF → SFO", amount: 24.5, status: "paid" },
+      { id: "b2", date: "2025-03-08", description: "Ride Oakland → Berkeley", amount: 18.0, status: "paid" },
+      { id: "b3", date: "2025-03-15", description: "Scheduled ride (pending)", amount: 0, status: "pending" },
+    ],
+    balanceDue: 0,
+    lastInvoiceUrl: "/api/fleet/billing/passenger",
+  });
+});
+
+app.get("/api/fleet/trips/passenger", async (req, res) => {
+  const passengerId = req.query.passengerId || "";
+  const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+  if (!passengerId) return res.json([]);
+  if (!isDbConnected()) {
+    const rows = sampleTripsForSeed.filter((t) => t.passengerId === passengerId);
+    return res.json(rows.map((t, i) => ({ id: `p-trip-${i}`, ...t })));
+  }
+  try {
+    const list = await Trip.find({ passengerId }).sort({ date: -1 }).limit(limit).lean();
+    return res.json(
+      list.map((t) => ({
+        id: t._id?.toString(),
+        driverId: t.driverId,
+        passengerId: t.passengerId,
+        date: t.date,
+        status: t.status || "pending",
+        startLocation: t.startLocation || "",
+        endLocation: t.endLocation || "",
+        distanceKm: t.distanceKm ?? 0,
+        durationMin: t.durationMin ?? 0,
+      }))
+    );
+  } catch (err) {
+    console.error(err);
+    return res.json([]);
+  }
+});
+
+app.post("/api/fleet/trips/:id/respond", async (req, res) => {
+  const { id } = req.params;
+  const { driverId, action } = req.body || {};
+  if (!driverId) return res.status(400).json({ message: "driverId required" });
+  if (!["accept", "reject"].includes(action)) return res.status(400).json({ message: "action: accept | reject" });
+  if (!isDbConnected()) {
+    await logFleetActivity({
+      action: action === "accept" ? "trip_driver_accept" : "trip_driver_reject",
+      summary: `Driver ${driverId} ${action}ed trip ${id}`,
+      actorUserId: driverId,
+      targetType: "trip",
+      targetId: id,
+    });
+    return res.json({ id, status: action === "accept" ? "in_progress" : "rejected", updated: true });
+  }
+  try {
+    const trip = await Trip.findById(id).lean();
+    if (!trip) return res.status(404).json({ message: "Trip not found." });
+    if (trip.driverId !== driverId) return res.status(403).json({ message: "Trip not assigned to this driver." });
+    if (trip.status !== "assigned") {
+      return res.status(400).json({ message: "Trip must be in assigned status to accept/reject." });
+    }
+    const status = action === "accept" ? "in_progress" : "rejected";
+    const updated = await Trip.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    await logFleetActivity({
+      action: action === "accept" ? "trip_driver_accept" : "trip_driver_reject",
+      summary: `Driver ${driverId} ${action}ed trip`,
+      actorUserId: driverId,
+      targetType: "trip",
+      targetId: id,
+    });
+    return res.json({
+      id: updated._id?.toString(),
+      status: updated.status,
+      driverId: updated.driverId,
+      passengerId: updated.passengerId,
+      startLocation: updated.startLocation,
+      endLocation: updated.endLocation,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to respond to trip." });
+  }
+});
+
+app.patch("/api/fleet/users/:userId/role", async (req, res) => {
+  const { userId } = req.params;
+  const { roleSlug, actorUserId } = req.body || {};
+  if (!roleSlug) return res.status(400).json({ message: "roleSlug required" });
+  const allowed = ["driver", "passenger", "entity_admin", "super_admin", "guest"];
+  if (!allowed.includes(roleSlug)) return res.status(400).json({ message: "Invalid roleSlug" });
+  if (!isDbConnected()) {
+    await logFleetActivity({
+      action: "user_role_changed",
+      summary: `User ${userId} role → ${roleSlug}`,
+      actorUserId: actorUserId || "user-super-1",
+      targetType: "user",
+      targetId: userId,
+      meta: { roleSlug },
+    });
+    return res.json({ userId, roleSlug, updated: true });
+  }
+  try {
+    const u = await FleetUser.findOneAndUpdate({ userId }, { roleSlug }, { new: true }).lean();
+    if (!u) return res.status(404).json({ message: "User not found" });
+    await logFleetActivity({
+      action: "user_role_changed",
+      summary: `${u.fullName || userId} role set to ${roleSlug}`,
+      actorUserId: actorUserId || "user-entity-1",
+      targetType: "user",
+      targetId: userId,
+      meta: { roleSlug },
+    });
+    return res.json({ ...u, id: u._id?.toString() });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Failed to update role" });
+  }
+});
+
+app.get("/api/fleet/activity-log", async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 80, 200);
+  if (!isDbConnected()) {
+    const mem = fleetActivityMemory.slice(0, limit);
+    const merged = [...mem];
+    for (const s of defaultFleetActivitySamples) {
+      if (merged.length >= limit) break;
+      merged.push({ _id: `sample-${s.targetId}`, ...s, createdAt: new Date(), updatedAt: new Date() });
+    }
+    return res.json(merged.slice(0, limit));
+  }
+  try {
+    await ensureFleetAdminSeed();
+    const count = await FleetActivityLog.countDocuments();
+    if (count === 0) {
+      await FleetActivityLog.insertMany(
+        defaultFleetActivitySamples.map((s) => ({
+          ...s,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
+      );
+    }
+    const list = await FleetActivityLog.find().sort({ createdAt: -1 }).limit(limit).lean();
+    return res.json(list.map((r) => ({ ...r, id: r._id?.toString() })));
+  } catch (err) {
+    console.error(err);
+    return res.json(fleetActivityMemory.slice(0, limit));
   }
 });
 
@@ -3100,33 +3592,678 @@ app.get("/api/insurance/real-time-risk", async (req, res) => {
 });
 
 // ---------- Technician job queue (from fleet maintenance) ----------
+const defaultTechnicianJobs = [
+  { id: "job-1", vehiclePlate: "AB-1234", type: "Oil Change", status: "in_progress", priority: "medium", estimatedMinutes: 45, date: "2025-03-15", description: "Regular oil and filter change" },
+  { id: "job-2", vehiclePlate: "CD-5678", type: "Tire Rotation", status: "pending", priority: "low", estimatedMinutes: 30, date: "2025-03-20", description: "Rotate tires and balance" },
+  { id: "job-3", vehiclePlate: "EF-9012", type: "Brake Inspection", status: "pending", priority: "high", estimatedMinutes: 60, date: "2025-03-25", description: "Full brake pad and rotor check" },
+  { id: "job-4", vehiclePlate: "AB-1234", type: "Air Filter Replacement", status: "in_progress", priority: "medium", estimatedMinutes: 25, date: "2025-03-18", description: "Cabin and engine air filter" },
+  { id: "job-5", vehiclePlate: "CD-5678", type: "Battery Test", status: "pending", priority: "medium", estimatedMinutes: 20, date: "2025-03-22", description: "Load test and charging system check" },
+];
+
+// Technician API base – always 200 so frontend never gets 404 for technician base path
+app.get("/api/technician", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Technician API",
+    endpoints: [
+      "GET /api/technician/jobs",
+      "GET /api/technician/profile",
+      "GET /api/technician/diagnostic-twin/list",
+      "GET /api/technician/diagnostic-twin",
+      "POST /api/technician/diagnostic-twin/scan",
+      "GET /api/technician/ai-faults",
+      "GET /api/technician/repair-recommendations",
+      "GET /api/technician/parts-prediction",
+      "GET /api/technician/workflow",
+      "GET /api/technician/time-estimate",
+      "POST /api/technician/time-estimate (body: jobId?, action: start|update|complete, actualMinutes?)",
+      "GET /api/technician/ar-steps",
+      "GET /api/technician/performance",
+      "GET /api/technician/earnings",
+    ],
+  });
+});
+
 app.get("/api/technician/jobs", async (req, res) => {
   try {
-    if (!isDbConnected()) {
-      return res.json([
-        { id: "1", vehiclePlate: "AB-1234", type: "Oil Change", status: "in_progress", priority: "medium", estimatedMinutes: 45 },
-        { id: "2", vehiclePlate: "CD-5678", type: "Tire Rotation", status: "pending", priority: "low", estimatedMinutes: 30 },
-      ]);
-    }
+    if (!isDbConnected()) return res.json(defaultTechnicianJobs);
     await ensureFleetExtendedSeed();
     const list = await FleetMaintenance.find().sort({ date: 1 }).lean();
-    const jobs = list.map((m, i) => ({
-      id: (m._id || `job-${i}`).toString(),
-      vehiclePlate: m.vehiclePlate,
-      type: m.type,
-      status: m.status === "completed" ? "completed" : m.status === "scheduled" ? "pending" : "in_progress",
-      priority: "medium",
-      estimatedMinutes: 45,
-      date: m.date,
-      description: m.description,
-    }));
-    res.json(jobs);
+    const jobs = list.length > 0
+      ? list.map((m, i) => ({
+          id: (m._id || `job-${i + 1}`).toString(),
+          vehiclePlate: m.vehiclePlate,
+          type: m.type,
+          status: m.status === "completed" ? "completed" : m.status === "scheduled" ? "pending" : "in_progress",
+          priority: "medium",
+          estimatedMinutes: 45,
+          date: m.date,
+          description: m.description,
+        }))
+      : defaultTechnicianJobs;
+    return res.json(jobs);
   } catch (err) {
     console.error("Technician jobs error:", err);
-    return res.status(200).json([
-      { id: "1", vehiclePlate: "AB-1234", type: "Oil Change", status: "in_progress", priority: "medium", estimatedMinutes: 45 },
-      { id: "2", vehiclePlate: "CD-5678", type: "Tire Rotation", status: "pending", priority: "low", estimatedMinutes: 30 },
-    ]);
+    return res.status(200).json(defaultTechnicianJobs);
+  }
+});
+
+// ---------- Technician: Vehicle Diagnostic Digital Twin ----------
+const sampleDiagnosticTwin = {
+  vehicleId: "v1",
+  vin: "4T1BF1FK5NU123456",
+  plateNumber: "AB-1234",
+  make: "Toyota",
+  model: "Camry",
+  year: 2024,
+  odometerKm: 18420,
+  healthScore: 87,
+  health: { engine: 90, battery: 85, brakesTires: 88, fluids: 82, electrical: 92 },
+  diagnosticCodes: [
+    { code: "P0420", type: "OBD2", description: "Catalyst system efficiency below threshold (Bank 1)", severity: "warning", status: "active", firstSeenAt: new Date().toISOString(), relatedRepairId: null },
+    { code: "P0171", type: "OBD2", description: "System too lean (Bank 1)", severity: "warning", status: "active", firstSeenAt: new Date().toISOString(), relatedRepairId: null },
+  ],
+  sensorData: [
+    { name: "Engine RPM", value: 720, unit: "rpm", status: "normal", readAt: new Date().toISOString() },
+    { name: "Coolant temp", value: 92, unit: "°C", status: "normal", readAt: new Date().toISOString() },
+    { name: "MAF", value: 4.2, unit: "g/s", status: "normal", readAt: new Date().toISOString() },
+    { name: "O2 sensor (Bank 1)", value: 0.45, unit: "V", status: "warning", readAt: new Date().toISOString() },
+    { name: "Battery voltage", value: 12.4, unit: "V", status: "normal", readAt: new Date().toISOString() },
+    { name: "Tire pressure FL", value: 218, unit: "kPa", status: "normal", readAt: new Date().toISOString() },
+    { name: "Tire pressure FR", value: 215, unit: "kPa", status: "normal", readAt: new Date().toISOString() },
+    { name: "Tire pressure RL", value: 220, unit: "kPa", status: "normal", readAt: new Date().toISOString() },
+    { name: "Tire pressure RR", value: 219, unit: "kPa", status: "normal", readAt: new Date().toISOString() },
+  ],
+  serviceHistory: [
+    { date: "2025-01-15", type: "Oil Change", description: "Full synthetic oil and filter", mileageKm: 17200, partsReplaced: ["Oil filter", "Engine oil 5W-30"], cost: 85, provider: "QuickLube" },
+    { date: "2024-10-20", type: "Brake Inspection", description: "Brake pads and rotor check", mileageKm: 15200, partsReplaced: [], cost: 45, provider: "AutoCare" },
+    { date: "2024-07-12", type: "Tire Rotation", description: "Rotate and balance", mileageKm: 12800, partsReplaced: [], cost: 35, provider: "TirePlus" },
+  ],
+  lastScanAt: new Date().toISOString(),
+};
+
+async function ensureDiagnosticTwinSeed() {
+  const count = await VehicleDiagnosticTwin.countDocuments();
+  if (count > 0) return;
+  const defaults = [
+    {
+      vehicleId: "v1",
+      vin: "4T1BF1FK5NU123456",
+      plateNumber: "AB-1234",
+      make: "Toyota",
+      model: "Camry",
+      year: 2024,
+      odometerKm: 18420,
+      healthScore: 87,
+      health: { engine: 90, battery: 85, brakesTires: 88, fluids: 82, electrical: 92 },
+      diagnosticCodes: [
+        { code: "P0420", type: "OBD2", description: "Catalyst system efficiency below threshold (Bank 1)", severity: "warning", status: "active", firstSeenAt: new Date(), relatedRepairId: null },
+        { code: "P0171", type: "OBD2", description: "System too lean (Bank 1)", severity: "warning", status: "active", firstSeenAt: new Date(), relatedRepairId: null },
+      ],
+      sensorData: [
+        { name: "Engine RPM", value: 720, unit: "rpm", status: "normal", readAt: new Date() },
+        { name: "Coolant temp", value: 92, unit: "°C", status: "normal", readAt: new Date() },
+        { name: "MAF", value: 4.2, unit: "g/s", status: "normal", readAt: new Date() },
+        { name: "O2 sensor (Bank 1)", value: 0.45, unit: "V", status: "warning", readAt: new Date() },
+        { name: "Battery voltage", value: 12.4, unit: "V", status: "normal", readAt: new Date() },
+        { name: "Tire pressure FL", value: 218, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure FR", value: 215, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RL", value: 220, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RR", value: 219, unit: "kPa", status: "normal", readAt: new Date() },
+      ],
+      serviceHistory: [
+        { date: "2025-01-15", type: "Oil Change", description: "Full synthetic oil and filter", mileageKm: 17200, partsReplaced: ["Oil filter", "Engine oil 5W-30"], cost: 85, provider: "QuickLube" },
+        { date: "2024-10-20", type: "Brake Inspection", description: "Brake pads and rotor check", mileageKm: 15200, partsReplaced: [], cost: 45, provider: "AutoCare" },
+        { date: "2024-07-12", type: "Tire Rotation", description: "Rotate and balance", mileageKm: 12800, partsReplaced: [], cost: 35, provider: "TirePlus" },
+      ],
+      lastScanAt: new Date(),
+    },
+    {
+      vehicleId: "v2",
+      vin: "WDB9066051L123789",
+      plateNumber: "CD-5678",
+      make: "Mercedes-Benz",
+      model: "Sprinter",
+      year: 2023,
+      odometerKm: 42100,
+      healthScore: 78,
+      health: { engine: 82, battery: 72, brakesTires: 85, fluids: 75, electrical: 80 },
+      diagnosticCodes: [
+        { code: "P0302", type: "OBD2", description: "Cylinder 2 misfire detected", severity: "critical", status: "active", firstSeenAt: new Date(), relatedRepairId: null },
+        { code: "B1009", type: "OEM", description: "HVAC control module fault", severity: "info", status: "active", firstSeenAt: new Date(), relatedRepairId: null },
+      ],
+      sensorData: [
+        { name: "Engine RPM", value: 0, unit: "rpm", status: "normal", readAt: new Date() },
+        { name: "Coolant temp", value: 88, unit: "°C", status: "normal", readAt: new Date() },
+        { name: "Battery voltage", value: 11.9, unit: "V", status: "warning", readAt: new Date() },
+        { name: "Tire pressure FL", value: 230, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure FR", value: 228, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RL", value: 232, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RR", value: 231, unit: "kPa", status: "normal", readAt: new Date() },
+      ],
+      serviceHistory: [
+        { date: "2025-02-01", type: "Inspection", description: "Annual safety inspection", mileageKm: 41000, partsReplaced: [], cost: 120, provider: "Fleet Service" },
+        { date: "2024-11-15", type: "Oil Change", description: "Diesel oil change", mileageKm: 38500, partsReplaced: ["Oil filter", "Diesel oil"], cost: 145, provider: "Fleet Service" },
+      ],
+      lastScanAt: new Date(),
+    },
+    {
+      vehicleId: "v3",
+      vin: "JTDKN3DU0A0123456",
+      plateNumber: "EF-9012",
+      make: "Toyota",
+      model: "Hiace",
+      year: 2022,
+      odometerKm: 56800,
+      healthScore: 72,
+      health: { engine: 75, battery: 68, brakesTires: 80, fluids: 70, electrical: 78 },
+      diagnosticCodes: [
+        { code: "P0128", type: "OBD2", description: "Coolant thermostat (coolant temp below regulating temp)", severity: "warning", status: "active", firstSeenAt: new Date(), relatedRepairId: null },
+      ],
+      sensorData: [
+        { name: "Engine RPM", value: 680, unit: "rpm", status: "normal", readAt: new Date() },
+        { name: "Coolant temp", value: 78, unit: "°C", status: "warning", readAt: new Date() },
+        { name: "Battery voltage", value: 12.1, unit: "V", status: "normal", readAt: new Date() },
+        { name: "Tire pressure FL", value: 210, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure FR", value: 208, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RL", value: 212, unit: "kPa", status: "normal", readAt: new Date() },
+        { name: "Tire pressure RR", value: 211, unit: "kPa", status: "normal", readAt: new Date() },
+      ],
+      serviceHistory: [
+        { date: "2025-03-10", type: "Brake Service", description: "Front brake pads replaced", mileageKm: 56200, partsReplaced: ["Brake pads (front)"], cost: 280, provider: "Fleet Service" },
+        { date: "2024-12-05", type: "Oil Change", description: "Engine oil and filter", mileageKm: 53200, partsReplaced: ["Oil filter", "Engine oil"], cost: 95, provider: "QuickLube" },
+      ],
+      lastScanAt: new Date(),
+    },
+  ];
+  await VehicleDiagnosticTwin.insertMany(defaults);
+  console.log("Technician: seeded VehicleDiagnosticTwin sample data.");
+}
+
+const defaultDiagnosticTwinList = [
+  { vehicleId: "v1", plateNumber: "AB-1234", make: "Toyota", model: "Camry", year: 2024, healthScore: 87, lastScanAt: new Date().toISOString() },
+  { vehicleId: "v2", plateNumber: "CD-5678", make: "Mercedes-Benz", model: "Sprinter", year: 2023, healthScore: 78, lastScanAt: new Date().toISOString() },
+  { vehicleId: "v3", plateNumber: "EF-9012", make: "Toyota", model: "Hiace", year: 2022, healthScore: 72, lastScanAt: new Date().toISOString() },
+];
+app.get("/api/technician/diagnostic-twin/list", async (req, res) => {
+  try {
+    if (!isDbConnected()) return res.json(defaultDiagnosticTwinList);
+    await ensureDiagnosticTwinSeed();
+    const list = await VehicleDiagnosticTwin.find().lean();
+    const items = list.length > 0
+      ? list.map((d) => ({
+          vehicleId: d.vehicleId,
+          vin: d.vin,
+          plateNumber: d.plateNumber,
+          make: d.make,
+          model: d.model,
+          year: d.year,
+          healthScore: d.healthScore,
+          lastScanAt: d.lastScanAt,
+        }))
+      : defaultDiagnosticTwinList;
+    return res.json(items);
+  } catch (err) {
+    console.error("Diagnostic twin list error:", err);
+    return res.status(200).json(defaultDiagnosticTwinList);
+  }
+});
+
+app.get("/api/technician/diagnostic-twin", async (req, res) => {
+  const { vehicleId, vin, plate } = req.query;
+  try {
+    if (!vehicleId && !vin && !plate) {
+      if (!isDbConnected()) return res.json(sampleDiagnosticTwin);
+      await ensureDiagnosticTwinSeed();
+      const doc = await VehicleDiagnosticTwin.findOne().lean();
+      const payload = doc ? { ...doc, diagnosticCodes: doc.diagnosticCodes || [], sensorData: doc.sensorData || [], serviceHistory: doc.serviceHistory || [] } : sampleDiagnosticTwin;
+      return res.json(payload);
+    }
+    if (!isDbConnected()) {
+      const fallback = { ...sampleDiagnosticTwin };
+      if (plate) fallback.plateNumber = plate;
+      if (vin) fallback.vin = vin;
+      if (vehicleId) fallback.vehicleId = vehicleId;
+      return res.json(fallback);
+    }
+    await ensureDiagnosticTwinSeed();
+    const doc = await VehicleDiagnosticTwin.findOne({
+      $or: [
+        ...(vehicleId ? [{ vehicleId }] : []),
+        ...(vin ? [{ vin }] : []),
+        ...(plate ? [{ plateNumber: plate }] : []),
+      ].filter(Boolean),
+    }).lean();
+    const payload = doc
+      ? { ...doc, diagnosticCodes: doc.diagnosticCodes || [], sensorData: doc.sensorData || [], serviceHistory: doc.serviceHistory || [] }
+      : { ...sampleDiagnosticTwin, ...(plate && { plateNumber: plate }), ...(vin && { vin }), ...(vehicleId && { vehicleId }) };
+    return res.json(payload);
+  } catch (err) {
+    console.error("Diagnostic twin get error:", err);
+    return res.json({ ...sampleDiagnosticTwin, ...(plate && { plateNumber: plate }), ...(vin && { vin }), ...(vehicleId && { vehicleId }) });
+  }
+});
+
+app.post("/api/technician/diagnostic-twin/scan", async (req, res) => {
+  const { plateNumber, vin } = req.body || {};
+  const plate = plateNumber || vin || "AB-1234";
+  try {
+    if (!isDbConnected()) {
+      return res.json({ success: true, twin: { ...sampleDiagnosticTwin, plateNumber: plate, vin: vin || sampleDiagnosticTwin.vin }, message: "Scan simulated (DB not connected)." });
+    }
+    await ensureDiagnosticTwinSeed();
+    let doc = await VehicleDiagnosticTwin.findOne({ $or: [{ plateNumber: plate }, { vin: plate }] }).lean();
+    if (!doc) {
+      const newTwin = await VehicleDiagnosticTwin.create({
+        ...sampleDiagnosticTwin,
+        plateNumber: plate,
+        vin: vin || sampleDiagnosticTwin.vin,
+        lastScanAt: new Date(),
+      });
+      doc = newTwin.toObject ? newTwin.toObject() : newTwin;
+    } else {
+      await VehicleDiagnosticTwin.updateOne({ _id: doc._id }, { $set: { lastScanAt: new Date() } });
+      doc = await VehicleDiagnosticTwin.findById(doc._id).lean();
+    }
+    const twin = { ...doc, diagnosticCodes: doc.diagnosticCodes || [], sensorData: doc.sensorData || [], serviceHistory: doc.serviceHistory || [] };
+    return res.status(200).json({ success: true, twin, message: "Diagnostic scan updated." });
+  } catch (err) {
+    console.error("Diagnostic twin scan error:", err);
+    return res.status(500).json({ success: false, message: "Scan failed." });
+  }
+});
+
+// ---------- Technician: Profile, AI faults, recommendations, parts, workflow, time, performance, earnings ----------
+const defaultTechnicianProfile = {
+  technicianId: "tech-001",
+  name: "Mike Chen",
+  email: "mike.chen@autosphere.service",
+  workshop: "Bay 3 - West",
+  bay: "B3",
+  role: "Senior Technician",
+};
+
+function getDefaultJobContext(jobId) {
+  const j = defaultTechnicianJobs.find((x) => x.id === jobId);
+  return j ? { vehiclePlate: j.vehiclePlate, jobType: j.type } : { vehiclePlate: "AB-1234", jobType: "Oil Change" };
+}
+
+const defaultTechnicianJobExtras = (jobId, vehiclePlate, jobType) => ({
+  jobId,
+  vehiclePlate,
+  jobType,
+  faultDetection: {
+    faults: [
+      { fault: "Catalyst efficiency below threshold", cause: "Aging O2 sensor or exhaust leak", confidence: 0.88, evidence: "P0420, O2 readings" },
+      { fault: "System too lean", cause: "Vacuum leak or MAF", confidence: 0.72, evidence: "P0171, fuel trim" },
+    ],
+    rootCause: { primary: "O2 sensor Bank 1", contributing: ["Possible exhaust leak", "MAF may need cleaning"] },
+    similarCases: [
+      { caseId: "C-2024-112", vehiclePlate: "XY-9999", summary: "P0420 on Camry", outcome: "Replaced O2 sensor" },
+      { caseId: "C-2024-089", vehiclePlate: "AB-1111", summary: "P0171 lean", outcome: "Cleaned MAF, replaced intake gasket" },
+    ],
+  },
+  repairRecommendations: {
+    steps: [
+      { order: 1, name: "Inspect", description: "Check O2 sensor and exhaust for leaks", durationMin: 15 },
+      { order: 2, name: "Replace/Repair", description: "Replace O2 sensor or repair leak", durationMin: 45 },
+      { order: 3, name: "Test", description: "Clear codes, test drive, verify", durationMin: 20 },
+    ],
+    parts: [
+      { partNumber: "89465-0D210", name: "O2 Sensor Bank 1", quantity: 1, inStock: true, unitPrice: 89 },
+      { partNumber: "17801-0Y060", name: "Air filter", quantity: 1, inStock: true, unitPrice: 24 },
+    ],
+    labourMinutes: 80,
+    manualLinks: [
+      { title: "O2 sensor replacement - Toyota TS", url: "/manuals/toyota-o2-replace" },
+      { title: "P0420 diagnostic tree", url: "/manuals/p0420" },
+    ],
+  },
+  partsPrediction: {
+    predicted: [
+      { partNumber: "89465-0D210", name: "O2 Sensor Bank 1", quantity: 1, inStock: true, unitPrice: 89 },
+      { partNumber: "17801-0Y060", name: "Air filter", quantity: 1, inStock: true, unitPrice: 24 },
+    ],
+    stock: [
+      { partNumber: "89465-0D210", name: "O2 Sensor Bank 1", quantity: 4, location: "Aisle 12" },
+      { partNumber: "17801-0Y060", name: "Air filter", quantity: 12, location: "Aisle 5" },
+    ],
+    alternatives: [
+      { partNumber: "OX-234", name: "O2 Sensor (aftermarket)", oemPartNumber: "89465-0D210", aftermarket: true },
+    ],
+  },
+  workflow: {
+    stages: [
+      { id: "diagnose", name: "Diagnose", status: "done", estimatedMin: 15, actualMin: 12, startedAt: new Date(), completedAt: new Date() },
+      { id: "parts", name: "Parts", status: "done", estimatedMin: 10, actualMin: 8, startedAt: new Date(), completedAt: new Date() },
+      { id: "repair", name: "Repair", status: "active", estimatedMin: 45, actualMin: null, startedAt: new Date(), completedAt: null },
+      { id: "test", name: "Test", status: "pending", estimatedMin: 20, actualMin: null, startedAt: null, completedAt: null },
+      { id: "complete", name: "Complete", status: "pending", estimatedMin: 5, actualMin: null, startedAt: null, completedAt: null },
+    ],
+  },
+  timeEstimate: {
+    estimatedMinutes: 80,
+    actualMinutes: 20,
+    eta: new Date(Date.now() + 60 * 60 * 1000),
+    startedAt: new Date(),
+  },
+  arSteps: [
+    { order: 1, title: "Locate O2 sensor", instruction: "Point camera at exhaust manifold. Sensor is before catalytic converter.", highlightComponent: "O2_Bank1" },
+    { order: 2, title: "Disconnect", instruction: "Unplug electrical connector. Remove sensor with 22mm wrench.", highlightComponent: "O2_connector" },
+    { order: 3, title: "Install", instruction: "Apply anti-seize to threads. Torque to 35 Nm.", highlightComponent: "O2_Bank1" },
+  ],
+});
+
+const defaultTechnicianStats = {
+  technicianId: "tech-001",
+  performance: {
+    firstTimeFixRate: 94,
+    reworkPercent: 3,
+    customerRating: 4.8,
+    workshopAverage: 4.2,
+    trends: [
+      { period: "Jan 2025", score: 92, label: "First-time fix" },
+      { period: "Feb 2025", score: 93, label: "First-time fix" },
+      { period: "Mar 2025", score: 94, label: "First-time fix" },
+    ],
+    goals: [
+      { name: "First-time fix rate", target: 95, current: 94, unit: "%" },
+      { name: "Rework", target: 2, current: 3, unit: "%" },
+      { name: "Customer rating", target: 4.8, current: 4.8, unit: "/5" },
+    ],
+  },
+  earnings: {
+    byPeriod: [
+      { period: "today", label: "Today", base: 120, incentive: 20, total: 140 },
+      { period: "week", label: "This week", base: 680, incentive: 95, total: 775 },
+      { period: "month", label: "This month", base: 2840, incentive: 420, total: 3260 },
+    ],
+    byJobType: [
+      { jobType: "Oil Change", labourUnits: 0.5, amount: 42, count: 12 },
+      { jobType: "Brake Service", labourUnits: 2, amount: 280, count: 3 },
+      { jobType: "Diagnostics", labourUnits: 1, amount: 95, count: 5 },
+    ],
+    payouts: [
+      { date: "2025-03-01", amount: 3180, status: "paid", method: "Direct deposit" },
+      { date: "2025-02-28", amount: 3020, status: "paid", method: "Direct deposit" },
+    ],
+    nextPayDate: "2025-03-31",
+    pendingAmount: 775,
+  },
+};
+
+async function ensureTechnicianSeed() {
+  if (!isDbConnected()) return;
+  const profileCount = await TechnicianProfile.countDocuments();
+  if (profileCount === 0) {
+    await TechnicianProfile.create(defaultTechnicianProfile);
+    console.log("Technician: seeded TechnicianProfile.");
+  }
+  const statsCount = await TechnicianStats.countDocuments();
+  if (statsCount === 0) {
+    await TechnicianStats.create(defaultTechnicianStats);
+    console.log("Technician: seeded TechnicianStats.");
+  }
+  const extraCount = await TechnicianJobExtra.countDocuments();
+  if (extraCount === 0) {
+    await ensureFleetExtendedSeed();
+    const jobs = await FleetMaintenance.find().lean();
+    const jobIds = jobs.map((j, i) => (j._id || `job-${i}`).toString());
+    for (let i = 0; i < jobIds.length; i++) {
+      const j = jobs[i];
+      const jobType = j.type || "Oil Change";
+      const plate = j.vehiclePlate || "AB-1234";
+      const extra = defaultTechnicianJobExtras(jobIds[i], plate, jobType);
+      if (i === 1) {
+        extra.faultDetection = {
+          faults: [
+            { fault: "Cylinder 2 misfire", cause: "Ignition coil or plug", confidence: 0.91, evidence: "P0302" },
+          ],
+          rootCause: { primary: "Ignition coil #2", contributing: [] },
+          similarCases: [{ caseId: "C-2024-098", vehiclePlate: "CD-0000", summary: "P0302 Sprinter", outcome: "Replaced coil" }],
+        };
+        extra.repairRecommendations.steps = [
+          { order: 1, name: "Test coil", description: "Swap coil 2 with 3, recheck", durationMin: 10 },
+          { order: 2, name: "Replace coil", description: "Replace faulty ignition coil", durationMin: 25 },
+        ];
+        extra.repairRecommendations.labourMinutes = 35;
+        extra.timeEstimate.estimatedMinutes = 35;
+      }
+      if (i === 2) {
+        extra.faultDetection = {
+          faults: [
+            { fault: "Front brake pad wear below 3mm", cause: "Normal wear", confidence: 0.95, evidence: "Visual inspection" },
+            { fault: "Rotor thickness at minimum", cause: "Aged rotors", confidence: 0.88, evidence: "Micrometer reading" },
+          ],
+          rootCause: { primary: "Worn brake pads and rotors (front)", contributing: ["High mileage", "City driving"] },
+          similarCases: [
+            { caseId: "C-2024-201", vehiclePlate: "GH-5555", summary: "Hiace front brakes", outcome: "Pads and rotors replaced" },
+          ],
+        };
+        extra.repairRecommendations.steps = [
+          { order: 1, name: "Lift and remove wheels", description: "Secure vehicle, remove front wheels", durationMin: 10 },
+          { order: 2, name: "Replace pads and rotors", description: "Install new pads and resurface or replace rotors", durationMin: 45 },
+          { order: 3, name: "Bleed and test", description: "Bleed brakes, bed pads, test drive", durationMin: 25 },
+        ];
+        extra.repairRecommendations.parts = [
+          { partNumber: "PAD-TH-2024", name: "Brake pads (front)", quantity: 1, inStock: true, unitPrice: 68 },
+          { partNumber: "ROT-TH-F", name: "Brake rotor (front)", quantity: 2, inStock: true, unitPrice: 95 },
+        ];
+        extra.repairRecommendations.labourMinutes = 80;
+        extra.partsPrediction.predicted = extra.repairRecommendations.parts;
+        extra.timeEstimate.estimatedMinutes = 80;
+        extra.arSteps = [
+          { order: 1, title: "Lift vehicle", instruction: "Position lift pads under jack points. Raise vehicle safely.", highlightComponent: "Lift" },
+          { order: 2, title: "Remove caliper", instruction: "Remove caliper bolts. Hang caliper. Remove old pads.", highlightComponent: "Caliper" },
+          { order: 3, title: "Replace rotor", instruction: "Remove rotor. Install new rotor. Torque to spec.", highlightComponent: "Rotor" },
+          { order: 4, title: "Install pads", instruction: "Compress piston. Install new pads and hardware.", highlightComponent: "Pads" },
+        ];
+      }
+      await TechnicianJobExtra.create(extra);
+    }
+    console.log("Technician: seeded TechnicianJobExtra for", jobIds.length, "jobs.");
+  }
+}
+
+app.get("/api/technician/profile", async (req, res) => {
+  try {
+    if (!isDbConnected()) return res.json(defaultTechnicianProfile);
+    await ensureTechnicianSeed();
+    const doc = await TechnicianProfile.findOne({ technicianId: "tech-001" }).lean();
+    return res.json(doc || defaultTechnicianProfile);
+  } catch (err) {
+    console.error("Technician profile error:", err);
+    return res.json(defaultTechnicianProfile);
+  }
+});
+
+app.get("/api/technician/ai-faults", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json(fallback.faultDetection);
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    const data = doc?.faultDetection || fallback.faultDetection;
+    return res.json(data);
+  } catch (err) {
+    console.error("Technician ai-faults error:", err);
+    return res.json(fallback.faultDetection);
+  }
+});
+
+app.get("/api/technician/repair-recommendations", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json(fallback.repairRecommendations);
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    return res.json(doc?.repairRecommendations || fallback.repairRecommendations);
+  } catch (err) {
+    console.error("Technician repair-recommendations error:", err);
+    return res.json(fallback.repairRecommendations);
+  }
+});
+
+app.get("/api/technician/parts-prediction", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json(fallback.partsPrediction);
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    return res.json(doc?.partsPrediction || fallback.partsPrediction);
+  } catch (err) {
+    console.error("Technician parts-prediction error:", err);
+    return res.json(fallback.partsPrediction);
+  }
+});
+
+app.get("/api/technician/workflow", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json(fallback.workflow);
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    return res.json(doc?.workflow || fallback.workflow);
+  } catch (err) {
+    console.error("Technician workflow error:", err);
+    return res.json(fallback.workflow);
+  }
+});
+
+function serializeTimeEstimate(te) {
+  if (!te) return te;
+  const out = { ...te };
+  if (out.eta && out.eta instanceof Date) out.eta = out.eta.toISOString();
+  if (out.startedAt && out.startedAt instanceof Date) out.startedAt = out.startedAt.toISOString();
+  return out;
+}
+
+app.get("/api/technician/time-estimate", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json(serializeTimeEstimate(fallback.timeEstimate));
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    const te = doc?.timeEstimate || fallback.timeEstimate;
+    return res.json(serializeTimeEstimate(te));
+  } catch (err) {
+    console.error("Technician time-estimate error:", err);
+    return res.json(serializeTimeEstimate(fallback.timeEstimate));
+  }
+});
+
+app.post("/api/technician/time-estimate", async (req, res) => {
+  const { jobId, action, actualMinutes } = req.body || {};
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) {
+      const te = { ...fallback.timeEstimate };
+      if (action === "start") {
+        te.startedAt = new Date().toISOString();
+        te.eta = new Date(Date.now() + (te.estimatedMinutes || 60) * 60 * 1000).toISOString();
+      }
+      if (action === "update" && typeof actualMinutes === "number") te.actualMinutes = actualMinutes;
+      if (action === "complete" && typeof actualMinutes === "number") te.actualMinutes = actualMinutes;
+      return res.json(serializeTimeEstimate(te));
+    }
+    await ensureTechnicianSeed();
+    let doc = await TechnicianJobExtra.findOne(jobId ? { jobId } : {});
+    if (!doc) {
+      const extra = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+      doc = await TechnicianJobExtra.create(extra);
+    }
+    const te = doc.timeEstimate || {};
+    if (action === "start") {
+      doc.timeEstimate = doc.timeEstimate || {};
+      doc.timeEstimate.startedAt = new Date();
+      doc.timeEstimate.eta = new Date(Date.now() + (te.estimatedMinutes || doc.timeEstimate.estimatedMinutes || 60) * 60 * 1000);
+      await doc.save();
+    }
+    if (action === "update" && typeof actualMinutes === "number") {
+      doc.timeEstimate = doc.timeEstimate || {};
+      doc.timeEstimate.actualMinutes = actualMinutes;
+      await doc.save();
+    }
+    if (action === "complete" && typeof actualMinutes === "number") {
+      doc.timeEstimate = doc.timeEstimate || {};
+      doc.timeEstimate.actualMinutes = actualMinutes;
+      doc.timeEstimate.eta = new Date();
+      await doc.save();
+    }
+    const updated = await TechnicianJobExtra.findById(doc._id).lean();
+    const result = updated?.timeEstimate || doc.timeEstimate || fallback.timeEstimate;
+    return res.json(serializeTimeEstimate(result));
+  } catch (err) {
+    console.error("Technician time-estimate POST error:", err);
+    const te = { ...fallback.timeEstimate };
+    if (action === "start") {
+      te.startedAt = new Date().toISOString();
+      te.eta = new Date(Date.now() + (te.estimatedMinutes || 60) * 60 * 1000).toISOString();
+    }
+    if ((action === "update" || action === "complete") && typeof actualMinutes === "number") te.actualMinutes = actualMinutes;
+    return res.json(serializeTimeEstimate(te));
+  }
+});
+
+app.get("/api/technician/ar-steps", async (req, res) => {
+  const { jobId } = req.query;
+  const ctx = getDefaultJobContext(jobId || "job-1");
+  const fallback = defaultTechnicianJobExtras(jobId || "job-1", ctx.vehiclePlate, ctx.jobType);
+  try {
+    if (!isDbConnected()) return res.json({ steps: fallback.arSteps });
+    await ensureTechnicianSeed();
+    let doc = null;
+    if (jobId) doc = await TechnicianJobExtra.findOne({ jobId }).lean();
+    else doc = await TechnicianJobExtra.findOne().lean();
+    return res.json({ steps: doc?.arSteps || fallback.arSteps });
+  } catch (err) {
+    console.error("Technician ar-steps error:", err);
+    return res.json({ steps: fallback.arSteps });
+  }
+});
+
+app.get("/api/technician/performance", async (req, res) => {
+  try {
+    if (!isDbConnected()) return res.json(defaultTechnicianStats.performance);
+    await ensureTechnicianSeed();
+    const doc = await TechnicianStats.findOne({ technicianId: "tech-001" }).lean();
+    return res.json(doc?.performance || defaultTechnicianStats.performance);
+  } catch (err) {
+    console.error("Technician performance error:", err);
+    return res.json(defaultTechnicianStats.performance);
+  }
+});
+
+app.get("/api/technician/earnings", async (req, res) => {
+  try {
+    if (!isDbConnected()) return res.json(defaultTechnicianStats.earnings);
+    await ensureTechnicianSeed();
+    const doc = await TechnicianStats.findOne({ technicianId: "tech-001" }).lean();
+    return res.json(doc?.earnings || defaultTechnicianStats.earnings);
+  } catch (err) {
+    console.error("Technician earnings error:", err);
+    return res.json(defaultTechnicianStats.earnings);
   }
 });
 
@@ -3291,16 +4428,141 @@ app.get("/api/driver/live-repair", async (req, res) => {
   }
 });
 
-// ---------- Property parking stats ----------
+// ---------- Property: parking, slots, pricing, EV, load, revenue, peak, access, carbon ----------
+const defaultPropertyParkingStats = {
+  months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  utilization: [78, 82, 75, 88, 85, 90],
+  revenue: [4200, 4850, 5100, 4900, 5300, 5600],
+  currency: "USD",
+  totalSlots: 120,
+  zones: [{ id: "A", name: "Lot A", slots: 40, occupied: 32 }, { id: "B", name: "Lot B", slots: 50, occupied: 38 }, { id: "C", name: "EV only", slots: 30, occupied: 22 }],
+};
+
 app.get("/api/property/parking-stats", async (req, res) => {
   try {
-    const utilization = [78, 82, 75, 88, 85, 90];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    const revenue = [4200, 4850, 5100, 4900, 5300, 5600];
-    res.json({ months, utilization, revenue, currency: "USD", totalSlots: 120 });
+    return res.json(defaultPropertyParkingStats);
   } catch (err) {
-    res.status(500).json({ error: "Parking stats unavailable" });
+    return res.status(200).json(defaultPropertyParkingStats);
   }
+});
+
+const defaultPropertySlots = [
+  { id: "P-001", type: "parking", zoneId: "A", status: "available", reservedUntil: null },
+  { id: "P-002", type: "parking", zoneId: "A", status: "occupied", reservedUntil: null },
+  { id: "P-003", type: "parking", zoneId: "A", status: "reserved", reservedUntil: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() },
+  { id: "EV-001", type: "ev", zoneId: "C", status: "available", reservedUntil: null, powerKw: 22 },
+  { id: "EV-002", type: "ev", zoneId: "C", status: "in_use", reservedUntil: null, powerKw: 50 },
+  { id: "EV-003", type: "ev", zoneId: "C", status: "available", reservedUntil: null, powerKw: 22 },
+];
+
+app.get("/api/property/slots", (req, res) => {
+  res.json({ slots: defaultPropertySlots, total: defaultPropertySlots.length });
+});
+
+const defaultPropertyDynamicPricing = {
+  parkingRates: [
+    { zoneId: "A", basePerHour: 3, peakMultiplier: 1.5, peakHours: "17:00-20:00" },
+    { zoneId: "B", basePerHour: 2.5, peakMultiplier: 1.3, peakHours: "08:00-10:00,17:00-19:00" },
+  ],
+  evRates: [{ ratePerKwh: 0.32, offPeakPerKwh: 0.22, offPeakHours: "22:00-06:00" }],
+  overrides: [{ id: "ov-1", zoneId: "A", reason: "Event", multiplier: 1.8, validFrom: "2025-03-20T00:00:00", validTo: "2025-03-21T23:59:59" }],
+};
+
+app.get("/api/property/dynamic-pricing", (req, res) => {
+  res.json(defaultPropertyDynamicPricing);
+});
+
+const defaultPropertyEvCharging = {
+  stations: [
+    { id: "ST-1", name: "Bay 1", connectors: 2, available: 1, inUse: 1, powerKw: 22, status: "online" },
+    { id: "ST-2", name: "Bay 2", connectors: 2, available: 2, inUse: 0, powerKw: 50, status: "online" },
+    { id: "ST-3", name: "Bay 3", connectors: 1, available: 0, inUse: 1, powerKw: 22, status: "online" },
+  ],
+  totalSessionsToday: 24,
+  totalKwhToday: 312,
+};
+
+app.get("/api/property/ev-charging", (req, res) => {
+  res.json(defaultPropertyEvCharging);
+});
+
+const defaultPropertyLoadBalancing = {
+  totalDrawKw: 72,
+  capacityKw: 150,
+  utilizationPercent: 48,
+  byStation: [
+    { stationId: "ST-1", drawKw: 22, capacityKw: 44, status: "ok" },
+    { stationId: "ST-2", drawKw: 0, capacityKw: 100, status: "ok" },
+    { stationId: "ST-3", drawKw: 22, capacityKw: 22, status: "ok" },
+  ],
+  alerts: [],
+};
+
+app.get("/api/property/load-balancing", (req, res) => {
+  res.json(defaultPropertyLoadBalancing);
+});
+
+const defaultPropertyRevenueAnalytics = {
+  bySource: [
+    { source: "Parking", amount: 12400, percent: 72, period: "month" },
+    { source: "EV charging", amount: 4800, percent: 28, period: "month" },
+  ],
+  byPeriod: [
+    { period: "Today", parking: 420, ev: 180 },
+    { period: "This week", parking: 2850, ev: 920 },
+    { period: "This month", parking: 12400, ev: 4800 },
+  ],
+  currency: "USD",
+};
+
+app.get("/api/property/revenue-analytics", (req, res) => {
+  res.json(defaultPropertyRevenueAnalytics);
+});
+
+const defaultPropertyPeakTraffic = {
+  forecast: [
+    { hour: "08:00", occupancyPercent: 72, chargingDemandKw: 44 },
+    { hour: "12:00", occupancyPercent: 45, chargingDemandKw: 22 },
+    { hour: "17:00", occupancyPercent: 88, chargingDemandKw: 66 },
+    { hour: "19:00", occupancyPercent: 85, chargingDemandKw: 50 },
+  ],
+  peakWindows: [
+    { start: "07:30", end: "09:30", label: "Morning commute", suggestedMultiplier: 1.4 },
+    { start: "16:30", end: "19:30", label: "Evening peak", suggestedMultiplier: 1.5 },
+  ],
+};
+
+app.get("/api/property/peak-traffic", (req, res) => {
+  res.json(defaultPropertyPeakTraffic);
+});
+
+const defaultPropertyAccessControl = {
+  rules: [
+    { id: "r1", name: "Monthly pass", type: "subscription", access: ["A", "B"], active: true },
+    { id: "r2", name: "EV only", type: "vehicle", access: ["C"], active: true },
+  ],
+  allowlist: [{ id: "a1", label: "VIP vehicles", count: 12 }],
+  blocklist: [{ id: "b1", label: "Overstay", count: 3 }],
+  recentLog: [
+    { at: new Date().toISOString(), action: "entry", gateId: "G1", vehicleId: "***456" },
+    { at: new Date(Date.now() - 300000).toISOString(), action: "exit", gateId: "G2", vehicleId: "***789" },
+  ],
+};
+
+app.get("/api/property/access-control", (req, res) => {
+  res.json(defaultPropertyAccessControl);
+});
+
+const defaultPropertyCarbonImpact = {
+  kwhDeliveredToday: 312,
+  kwhDeliveredMonth: 8420,
+  co2AvoidedKgMonth: 4200,
+  equivalentIceKm: 16800,
+  trend: [{ month: "Jan", kwh: 7200, co2Kg: 3600 }, { month: "Feb", kwh: 7800, co2Kg: 3900 }, { month: "Mar", kwh: 8420, co2Kg: 4200 }],
+};
+
+app.get("/api/property/carbon-impact", (req, res) => {
+  res.json(defaultPropertyCarbonImpact);
 });
 
 // ---------- Government: recall summary (uses NHTSA) ----------
@@ -3797,6 +5059,22 @@ app.get("/api/analytics/insurance-risk-trends", async (req, res) => {
     res.json({ months: ["Jan", "Feb", "Mar"], avgRiskScore: [avg + 2, avg + 1, avg] });
   } catch (err) {
     res.status(500).json({ error: "Trends unavailable" });
+  }
+});
+
+// Optional: trigger seed from API (same sample data as seed.js) so DB can be populated without running npm run seed
+app.post("/api/seed", async (req, res) => {
+  try {
+    if (!isDbConnected()) {
+      return res.status(503).json({ error: "Database not connected. Set MONGODB_URI and restart the server." });
+    }
+    await ensureFleetExtendedSeed();
+    await ensureDiagnosticTwinSeed();
+    await ensureTechnicianSeed();
+    return res.json({ success: true, message: "Sample data seeded (fleet, diagnostic twin, technician)." });
+  } catch (err) {
+    console.error("API seed error:", err);
+    return res.status(500).json({ error: err.message || "Seed failed." });
   }
 });
 

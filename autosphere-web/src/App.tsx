@@ -173,6 +173,14 @@ const FleetReports = lazy(() => import('./pages/platforms/fleet/Reports'))
 const FleetOrganizations = lazy(() => import('./pages/platforms/fleet/Organizations'))
 const FleetRoles = lazy(() => import('./pages/platforms/fleet/Roles'))
 const FleetTrips = lazy(() => import('./pages/platforms/fleet/Trips'))
+const FleetUsers = lazy(() => import('./pages/platforms/fleet/Users'))
+const FleetPermissionsMatrix = lazy(() => import('./pages/platforms/fleet/PermissionsMatrix'))
+const FleetDriverConsole = lazy(() => import('./pages/platforms/fleet/DriverConsole'))
+const FleetPassengerPortal = lazy(() => import('./pages/platforms/fleet/PassengerPortal'))
+const FleetPassengerBilling = lazy(() => import('./pages/platforms/fleet/PassengerBilling'))
+const FleetGuestFleetView = lazy(() => import('./pages/platforms/fleet/GuestFleetView'))
+const FleetActivityLog = lazy(() => import('./pages/platforms/fleet/ActivityLog'))
+const FleetSystemSettings = lazy(() => import('./pages/platforms/fleet/SystemSettings'))
 
 function LoadingFallback() {
   return (
@@ -359,6 +367,14 @@ function App() {
           <Route path="organizations" element={<Suspense fallback={<LoadingFallback />}><FleetOrganizations /></Suspense>} />
           <Route path="roles" element={<Suspense fallback={<LoadingFallback />}><FleetRoles /></Suspense>} />
           <Route path="trips" element={<Suspense fallback={<LoadingFallback />}><FleetTrips /></Suspense>} />
+          <Route path="users" element={<Suspense fallback={<LoadingFallback />}><FleetUsers /></Suspense>} />
+          <Route path="permissions-matrix" element={<Suspense fallback={<LoadingFallback />}><FleetPermissionsMatrix /></Suspense>} />
+          <Route path="driver-console" element={<Suspense fallback={<LoadingFallback />}><FleetDriverConsole /></Suspense>} />
+          <Route path="passenger-portal" element={<Suspense fallback={<LoadingFallback />}><FleetPassengerPortal /></Suspense>} />
+          <Route path="passenger-billing" element={<Suspense fallback={<LoadingFallback />}><FleetPassengerBilling /></Suspense>} />
+          <Route path="guest-fleet" element={<Suspense fallback={<LoadingFallback />}><FleetGuestFleetView /></Suspense>} />
+          <Route path="activity-log" element={<Suspense fallback={<LoadingFallback />}><FleetActivityLog /></Suspense>} />
+          <Route path="system-settings" element={<Suspense fallback={<LoadingFallback />}><FleetSystemSettings /></Suspense>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
