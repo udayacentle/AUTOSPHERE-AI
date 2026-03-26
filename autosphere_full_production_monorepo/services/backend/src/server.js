@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bodyParser from "body-parser";
+import crypto from "node:crypto";
 import mongoose from "mongoose";
 import connectDB from "./db/connectDB.js";
 import Profile from "./models/Profile.js";
@@ -53,6 +54,11 @@ app.use(bodyParser.json());
 
 const SECRET = process.env.JWT_SECRET || "AUTOSPHERE_SECRET";
 const DEFAULT_DRIVER_ID = "driver1";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/auth/google/callback";
+const googleOauthStates = new Set();
 
 const profileStore = new Map();
 
@@ -210,6 +216,103 @@ app.post("/auth/login", (req, res) => {
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Login failed. Please try again." });
+  }
+});
+
+// Demo Google login endpoint. Replace with OAuth flow in production.
+app.post("/auth/google", (req, res) => {
+  try {
+    const email = (req.body?.email || DEMO_EMAIL).toString().trim().toLowerCase();
+    const token = jwt.sign({ email, provider: "google" }, SECRET, { expiresIn: "1h" });
+    res.json({ token, email, provider: "google" });
+  } catch (err) {
+    console.error("Google login error:", err);
+    res.status(500).json({ message: "Google login failed. Please try again." });
+  }
+});
+
+// Real Google OAuth (account chooser)
+app.get("/auth/google/start", (req, res) => {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    return res.redirect(
+      `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Google OAuth is not configured on server.")}`
+    );
+  }
+  const state = crypto.randomBytes(24).toString("hex");
+  googleOauthStates.add(state);
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: GOOGLE_REDIRECT_URI,
+    response_type: "code",
+    scope: "openid email profile",
+    access_type: "online",
+    include_granted_scopes: "true",
+    prompt: "select_account",
+    state,
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+});
+
+app.get("/auth/google/callback", async (req, res) => {
+  try {
+    const code = String(req.query.code || "");
+    const state = String(req.query.state || "");
+    if (!code || !state || !googleOauthStates.has(state)) {
+      return res.redirect(
+        `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Invalid Google sign-in state.")}`
+      );
+    }
+    googleOauthStates.delete(state);
+
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }),
+    });
+    if (!tokenRes.ok) {
+      return res.redirect(
+        `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Failed to exchange Google auth code.")}`
+      );
+    }
+    const tokenJson = await tokenRes.json();
+    const accessToken = tokenJson?.access_token ? String(tokenJson.access_token) : "";
+    if (!accessToken) {
+      return res.redirect(
+        `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Google access token was not returned.")}`
+      );
+    }
+
+    const profileRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!profileRes.ok) {
+      return res.redirect(
+        `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Failed to fetch Google profile.")}`
+      );
+    }
+    const profile = await profileRes.json();
+    const email = String(profile?.email || "").trim().toLowerCase();
+    if (!email) {
+      return res.redirect(
+        `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Google account email not available.")}`
+      );
+    }
+
+    const appToken = jwt.sign({ email, provider: "google" }, SECRET, { expiresIn: "1h" });
+    return res.redirect(
+      `${FRONTEND_ORIGIN}/auth/login?google_token=${encodeURIComponent(appToken)}&google_email=${encodeURIComponent(email)}`
+    );
+  } catch (err) {
+    console.error("Google callback error:", err);
+    return res.redirect(
+      `${FRONTEND_ORIGIN}/auth/login?google_error=${encodeURIComponent("Google login failed. Please try again.")}`
+    );
   }
 });
 

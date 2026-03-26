@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/context'
 import { loadSavedLoginUsernames, rememberLoginUsername } from './loginUsernameStorage'
 import { LoginUsernameField } from './LoginUsernameField'
@@ -23,10 +23,32 @@ export default function Login() {
     }
   })
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     setSavedUsernames(loadSavedLoginUsernames())
   }, [])
+
+  useEffect(() => {
+    const token = searchParams.get('google_token')
+    const email = searchParams.get('google_email')
+    const oauthError = searchParams.get('google_error')
+    if (oauthError) {
+      setError(oauthError)
+      return
+    }
+    if (!token) return
+    try {
+      localStorage.setItem('autosphere-token', token)
+    } catch {
+      /* ignore */
+    }
+    if (email) {
+      rememberLoginUsername(email)
+      setSavedUsernames(loadSavedLoginUsernames())
+    }
+    navigate('/app', { replace: true })
+  }, [searchParams, navigate])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -79,6 +101,17 @@ export default function Login() {
     } catch (err) {
       setError(t('auth.errorServer'))
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      window.location.assign('/auth/google/start')
+    } catch {
+      setError(t('auth.errorServer'))
       setLoading(false)
     }
   }
@@ -153,7 +186,12 @@ export default function Login() {
             <span>or</span>
           </div>
 
-          <button type="button" className="login-btn-social login-btn-google">
+          <button
+            type="button"
+            className="login-btn-social login-btn-google"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
             <span className="google-icon" aria-hidden>
               <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.63-6.05z"/>
@@ -162,7 +200,7 @@ export default function Login() {
                 <path fill="#EA4335" d="M8.98 4.18c1.34 0 2.55.46 3.5 1.36l2.6-2.6A7.8 7.8 0 0 0 8.98 1a8 8 0 0 0-7.52 5.36l2.59 2.07a4.8 4.8 0 0 1 4.93-3.18z"/>
               </svg>
             </span>
-            {t('auth.continueWithGoogle')}
+            {loading ? t('auth.signingIn') : t('auth.continueWithGoogle')}
           </button>
         </form>
 
