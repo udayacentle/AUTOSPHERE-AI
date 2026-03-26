@@ -20,6 +20,15 @@ function dedupeByPlate<T extends { plateNumber?: string | null }>(list: T[]): T[
   })
 }
 
+function getOsmEmbedUrl(latitude: number, longitude: number): string {
+  const delta = 0.01
+  const left = longitude - delta
+  const right = longitude + delta
+  const top = latitude + delta
+  const bottom = latitude - delta
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${latitude}%2C${longitude}`
+}
+
 export default function Tracking() {
   const { t } = useI18n()
   const { vehicles: contextVehicles, loading, error, refetch } = useFleetVehicles()
@@ -72,9 +81,14 @@ export default function Tracking() {
               <li key={v._id ?? v.id ?? v.plateNumber} className="fleet-tracking-item">
                 <span className="fleet-vehicle-plate">{v.plateNumber}</span>
                 <span className="fleet-vehicle-model">{v.model || '—'}</span>
-                <span className="fleet-tracking-coords">
-                  {v.latitude?.toFixed(4)}, {v.longitude?.toFixed(4)}
-                </span>
+                <div className="fleet-tracking-mini-map-wrap">
+                  <iframe
+                    className="fleet-tracking-mini-map"
+                    title={`Map for ${v.plateNumber}`}
+                    loading="lazy"
+                    src={getOsmEmbedUrl(v.latitude!, v.longitude!)}
+                  />
+                </div>
                 <a
                   href={`https://www.google.com/maps?q=${v.latitude},${v.longitude}`}
                   target="_blank"

@@ -5354,7 +5354,7 @@ const hi = {
   },
 }
 
-export const translations: Record<Locale, typeof en> = { en, es, fr, de, hi }
+export const translations: Record<Locale, Record<string, unknown>> = { en, es, fr, de, hi }
 
 function getByPath(obj: Record<string, unknown>, path: string): string | undefined {
   const parts = path.split('.')

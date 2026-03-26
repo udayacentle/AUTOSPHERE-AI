@@ -15,7 +15,7 @@ import type {
   InsuranceModelPerformanceData,
   InsuranceComplianceReportingData,
   InsuranceApiIntegrationSettingsData,
-} from '../../api/client'
+} from '../../../api/client'
 
 const now = new Date().toISOString()
 

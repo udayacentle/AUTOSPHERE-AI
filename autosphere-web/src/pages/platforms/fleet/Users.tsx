@@ -112,7 +112,11 @@ export default function FleetUsers() {
                         </button>
                       </div>
                     </td>
-                    <td>{typeof u.organizationId === 'object' && u.organizationId?.name ? u.organizationId.name : (u.organizationId ?? '—')}</td>
+                    <td>
+                      {typeof u.organizationId === 'object'
+                        ? (u.organizationId?.name ?? u.organizationId?.slug ?? '—')
+                        : (u.organizationId ?? '—')}
+                    </td>
                     <td>{u.status ?? 'active'}</td>
                   </tr>
                 ))}

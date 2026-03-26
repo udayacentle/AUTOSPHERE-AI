@@ -314,6 +314,34 @@ export interface FleetSystemSettingsData {
   complianceNote: string
 }
 
+export interface FleetFuelLogItem {
+  _id?: string
+  id?: string
+  vehiclePlate: string
+  date: string
+  liters: number
+  pricePerLiter: number
+  totalCost: number
+  odometerKm: number
+  fuelType: string
+  station?: string
+  recordedBy?: string
+}
+
+export interface FleetAlertItem {
+  _id?: string
+  id?: string
+  type: string
+  severity: 'low' | 'medium' | 'high'
+  vehiclePlate?: string
+  driverId?: string
+  message: string
+  status: 'open' | 'resolved'
+  source?: string
+  createdAtIso?: string
+  createdAt?: string
+}
+
 export interface WeatherData {
   temp: number | null
   description: string
@@ -1744,6 +1772,43 @@ export const api = {
   getFleetVehiclesPublic: () => get<FleetPublicVehiclesResponse>('/api/fleet/vehicles/public'),
   getFleetActivityLog: (limit = 80) => get<FleetActivityLogItem[]>(`/api/fleet/activity-log?limit=${limit}`),
   getFleetSettings: () => get<FleetSystemSettingsData>('/api/fleet/settings'),
+  getFleetFuelLogs: (limit = 80) => get<FleetFuelLogItem[]>(`/api/fleet/fuel?limit=${limit}`),
+  addFleetFuelLog: (body: {
+    vehiclePlate: string
+    date?: string
+    liters: number
+    pricePerLiter?: number
+    totalCost?: number
+    odometerKm?: number
+    fuelType?: string
+    station?: string
+    recordedBy?: string
+  }) =>
+    fetch(`${API_BASE}/api/fleet/fuel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetFuelLogItem>
+    }),
+  getFleetAlerts: (status: 'open' | 'resolved' | 'all' = 'all', limit = 80) =>
+    get<FleetAlertItem[]>(`/api/fleet/alerts?status=${encodeURIComponent(status)}&limit=${limit}`),
+  updateFleetAlertStatus: (alertId: string, status: 'open' | 'resolved', actorUserId?: string) =>
+    fetch(`${API_BASE}/api/fleet/alerts/${encodeURIComponent(alertId)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, ...(actorUserId ? { actorUserId } : {}) }),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetAlertItem & { updated?: boolean }>
+    }),
   saveFleetSettings: (body: Partial<FleetSystemSettingsData>) =>
     fetch(`${API_BASE}/api/fleet/settings`, {
       method: 'PUT',

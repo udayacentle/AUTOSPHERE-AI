@@ -14,7 +14,7 @@ import type {
   DealerTradeInValuationsData,
   DealerCustomersData,
   DealerFinanceIntegrationData,
-} from '../../api/client'
+} from '../../../api/client'
 
 const now = new Date().toISOString()
 

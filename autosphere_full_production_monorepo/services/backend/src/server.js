@@ -20,6 +20,8 @@ import FleetOrganization from "./models/FleetOrganization.js";
 import FleetRole from "./models/FleetRole.js";
 import FleetUser from "./models/FleetUser.js";
 import FleetActivityLog from "./models/FleetActivityLog.js";
+import FleetFuelLog from "./models/FleetFuelLog.js";
+import FleetAlert from "./models/FleetAlert.js";
 import VehicleDiagnosticTwin from "./models/VehicleDiagnosticTwin.js";
 import TechnicianProfile from "./models/TechnicianProfile.js";
 import TechnicianJobExtra from "./models/TechnicianJobExtra.js";
@@ -671,6 +673,72 @@ const defaultFleetReports = [
   { period: "February 2025", totalTrips: 98, totalDistanceKm: 2100, totalFuelUsed: 280, maintenanceCount: 3, alerts: 0 },
 ];
 
+const defaultFleetFuelLogs = [
+  {
+    vehiclePlate: "AB-1234",
+    date: "2025-03-15",
+    liters: 52,
+    pricePerLiter: 1.45,
+    totalCost: 75.4,
+    odometerKm: 42150,
+    fuelType: "diesel",
+    station: "Shell Downtown",
+    recordedBy: "user-entity-1",
+  },
+  {
+    vehiclePlate: "CD-5678",
+    date: "2025-03-13",
+    liters: 47,
+    pricePerLiter: 1.44,
+    totalCost: 67.68,
+    odometerKm: 50880,
+    fuelType: "diesel",
+    station: "City Fuel Point",
+    recordedBy: "user-entity-1",
+  },
+  {
+    vehiclePlate: "AB-1234",
+    date: "2025-03-08",
+    liters: 48,
+    pricePerLiter: 1.43,
+    totalCost: 68.64,
+    odometerKm: 41760,
+    fuelType: "diesel",
+    station: "Metro Pumps",
+    recordedBy: "user-entity-1",
+  },
+];
+
+const defaultFleetAlerts = [
+  {
+    type: "speed_violation",
+    severity: "high",
+    vehiclePlate: "AB-1234",
+    driverId: "user-driver-1",
+    message: "Speed exceeded 90 km/h in downtown zone.",
+    status: "open",
+    source: "gps",
+  },
+  {
+    type: "maintenance_due",
+    severity: "medium",
+    vehiclePlate: "CD-5678",
+    driverId: "user-driver-2",
+    message: "Service reminder: brake inspection due in 3 days.",
+    status: "open",
+    source: "maintenance",
+  },
+  {
+    type: "geofence",
+    severity: "low",
+    vehiclePlate: "EF-9012",
+    driverId: "",
+    message: "Vehicle exited designated service area.",
+    status: "resolved",
+    source: "gps",
+  },
+];
+
 async function ensureFleetSeed() {
   if (!isDbConnected()) return;
   const count = await FleetVehicle.countDocuments();
@@ -727,6 +795,16 @@ async function ensureFleetExtendedSeed() {
   if (reportCount === 0) {
     await FleetReport.insertMany(defaultFleetReports);
     console.log("Fleet: seeded sample reports into database.");
+  }
+  const fuelCount = await FleetFuelLog.countDocuments();
+  if (fuelCount === 0) {
+    await FleetFuelLog.insertMany(defaultFleetFuelLogs);
+    console.log("Fleet: seeded fuel logs.");
+  }
+  const alertCount = await FleetAlert.countDocuments();
+  if (alertCount === 0) {
+    await FleetAlert.insertMany(defaultFleetAlerts);
+    console.log("Fleet: seeded alerts.");
   }
 }
 
@@ -866,6 +944,124 @@ app.get("/api/fleet/reports", async (req, res) => {
   } catch (err) {
     console.error("Fleet reports error:", err);
     res.json(defaultFleetReports.map((r, i) => ({ _id: `mock-r-${i}`, ...r })));
+  }
+});
+
+app.get("/api/fleet/fuel", async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 80, 200);
+  if (!isDbConnected()) {
+    return res.json(defaultFleetFuelLogs.slice(0, limit).map((f, i) => ({ _id: `fuel-${i}`, ...f })));
+  }
+  try {
+    await ensureFleetExtendedSeed();
+    const list = await FleetFuelLog.find().sort({ date: -1 }).limit(limit).lean();
+    return res.json(list.map((f) => ({ ...f, id: f._id?.toString() })));
+  } catch (err) {
+    console.error("Fleet fuel logs error:", err);
+    return res.json(defaultFleetFuelLogs.slice(0, limit).map((f, i) => ({ _id: `fuel-${i}`, ...f })));
+  }
+});
+
+app.post("/api/fleet/fuel", async (req, res) => {
+  const b = req.body || {};
+  const payload = {
+    vehiclePlate: String(b.vehiclePlate || ""),
+    date: String(b.date || new Date().toISOString().slice(0, 10)),
+    liters: Number(b.liters || 0),
+    pricePerLiter: Number(b.pricePerLiter || 0),
+    totalCost:
+      b.totalCost != null
+        ? Number(b.totalCost || 0)
+        : Number(b.liters || 0) * Number(b.pricePerLiter || 0),
+    odometerKm: Number(b.odometerKm || 0),
+    fuelType: String(b.fuelType || "diesel"),
+    station: String(b.station || ""),
+    recordedBy: String(b.recordedBy || "user-entity-1"),
+  };
+  if (!payload.vehiclePlate || payload.liters <= 0) {
+    return res.status(400).json({ message: "vehiclePlate and liters are required." });
+  }
+  if (!isDbConnected()) {
+    await logFleetActivity({
+      action: "fuel_recorded",
+      summary: `Fuel log added for ${payload.vehiclePlate}`,
+      actorUserId: payload.recordedBy,
+      targetType: "fuel",
+      targetId: `fuel-offline-${Date.now()}`,
+      meta: { liters: payload.liters, totalCost: payload.totalCost },
+    });
+    return res.status(201).json({ _id: `fuel-offline-${Date.now()}`, ...payload });
+  }
+  try {
+    const row = await FleetFuelLog.create(payload);
+    await logFleetActivity({
+      action: "fuel_recorded",
+      summary: `Fuel log added for ${payload.vehiclePlate}`,
+      actorUserId: payload.recordedBy,
+      targetType: "fuel",
+      targetId: row._id?.toString(),
+      meta: { liters: payload.liters, totalCost: payload.totalCost },
+    });
+    return res.status(201).json(row.toObject ? row.toObject() : row);
+  } catch (err) {
+    console.error("Fleet fuel create error:", err);
+    return res.status(500).json({ message: "Failed to save fuel log." });
+  }
+});
+
+app.get("/api/fleet/alerts", async (req, res) => {
+  const status = String(req.query.status || "all");
+  const limit = Math.min(parseInt(req.query.limit, 10) || 80, 200);
+  const allowed = new Set(["open", "resolved", "all"]);
+  const normalized = allowed.has(status) ? status : "all";
+  if (!isDbConnected()) {
+    const rows = normalized === "all" ? defaultFleetAlerts : defaultFleetAlerts.filter((a) => a.status === normalized);
+    return res.json(rows.slice(0, limit).map((a, i) => ({ _id: `alert-${i}`, ...a })));
+  }
+  try {
+    await ensureFleetExtendedSeed();
+    const query = normalized === "all" ? {} : { status: normalized };
+    const list = await FleetAlert.find(query).sort({ createdAt: -1 }).limit(limit).lean();
+    return res.json(list.map((a) => ({ ...a, id: a._id?.toString() })));
+  } catch (err) {
+    console.error("Fleet alerts error:", err);
+    const rows = normalized === "all" ? defaultFleetAlerts : defaultFleetAlerts.filter((a) => a.status === normalized);
+    return res.json(rows.slice(0, limit).map((a, i) => ({ _id: `alert-${i}`, ...a })));
+  }
+});
+
+app.patch("/api/fleet/alerts/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const status = String(req.body?.status || "");
+  if (!["open", "resolved"].includes(status)) {
+    return res.status(400).json({ message: "status must be open or resolved" });
+  }
+  if (!isDbConnected()) {
+    await logFleetActivity({
+      action: "alert_status_updated",
+      summary: `Alert ${id} set to ${status}`,
+      actorUserId: String(req.body?.actorUserId || "user-entity-1"),
+      targetType: "alert",
+      targetId: id,
+      meta: { status },
+    });
+    return res.json({ id, status, updated: true });
+  }
+  try {
+    const row = await FleetAlert.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    if (!row) return res.status(404).json({ message: "Alert not found." });
+    await logFleetActivity({
+      action: "alert_status_updated",
+      summary: `Alert ${id} set to ${status}`,
+      actorUserId: String(req.body?.actorUserId || "user-entity-1"),
+      targetType: "alert",
+      targetId: id,
+      meta: { status },
+    });
+    return res.json({ ...row, id: row._id?.toString() });
+  } catch (err) {
+    console.error("Fleet alert status update error:", err);
+    return res.status(500).json({ message: "Failed to update alert status." });
   }
 });
 

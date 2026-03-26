@@ -181,6 +181,8 @@ const FleetPassengerBilling = lazy(() => import('./pages/platforms/fleet/Passeng
 const FleetGuestFleetView = lazy(() => import('./pages/platforms/fleet/GuestFleetView'))
 const FleetActivityLog = lazy(() => import('./pages/platforms/fleet/ActivityLog'))
 const FleetSystemSettings = lazy(() => import('./pages/platforms/fleet/SystemSettings'))
+const FleetFuelManagement = lazy(() => import('./pages/platforms/fleet/FuelManagement'))
+const FleetAlertsNotifications = lazy(() => import('./pages/platforms/fleet/AlertsNotifications'))
 
 function LoadingFallback() {
   return (
@@ -375,6 +377,8 @@ function App() {
           <Route path="guest-fleet" element={<Suspense fallback={<LoadingFallback />}><FleetGuestFleetView /></Suspense>} />
           <Route path="activity-log" element={<Suspense fallback={<LoadingFallback />}><FleetActivityLog /></Suspense>} />
           <Route path="system-settings" element={<Suspense fallback={<LoadingFallback />}><FleetSystemSettings /></Suspense>} />
+          <Route path="fuel-management" element={<Suspense fallback={<LoadingFallback />}><FleetFuelManagement /></Suspense>} />
+          <Route path="alerts" element={<Suspense fallback={<LoadingFallback />}><FleetAlertsNotifications /></Suspense>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

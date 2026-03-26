@@ -51,6 +51,14 @@ export function LoginUsernameField({
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
 
+  useEffect(() => {
+    const v = value.trim().toLowerCase()
+    if (!v) return
+    if (suggestions.some((s) => s.trim().toLowerCase() === v)) {
+      setOpen(false)
+    }
+  }, [value, suggestions])
+
   const showPanel = open && suggestions.length > 0 && filtered.length > 0
 
   return (
