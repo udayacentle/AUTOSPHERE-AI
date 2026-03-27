@@ -943,6 +943,55 @@ async function ensureFleetAdminSeed() {
   }
 }
 
+function mapFleetVehicleToPublic(v) {
+  return {
+    plateNumber: (v.plateNumber || "").trim(),
+    model: v.model || "",
+    availability: v.status === "active" ? "Available" : "Limited",
+  };
+}
+
+/** BRD passenger billing: lines derived from trip history (fare model: base + per-km). */
+function buildPassengerBillingPayload(passengerId, tripDocs) {
+  const base = 5.5;
+  const perKm = 1.75;
+  const defaultEstKm = 18;
+  const trips = [...tripDocs].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const lines = [];
+  let balanceDue = 0;
+  for (const t of trips) {
+    const id = t._id?.toString?.() || t.id || `line-${lines.length}`;
+    const desc = `${t.startLocation || "—"} → ${t.endLocation || "—"}`;
+    if (t.status === "rejected") {
+      lines.push({ id, date: t.date, description: desc, amount: 0, status: "cancelled" });
+      continue;
+    }
+    const km = Number(t.distanceKm || 0);
+    if (t.status === "completed") {
+      const amount = Math.round((base + km * perKm) * 100) / 100;
+      lines.push({ id, date: t.date, description: desc, amount, status: "paid" });
+      continue;
+    }
+    const estKm = km > 0 ? km : defaultEstKm;
+    const amount = Math.round((base + estKm * perKm) * 100) / 100;
+    lines.push({
+      id,
+      date: t.date,
+      description: `${desc} (estimated)`,
+      amount,
+      status: "pending",
+    });
+    balanceDue += amount;
+  }
+  return {
+    passengerId,
+    currency: "USD",
+    lines,
+    balanceDue: Math.round(balanceDue * 100) / 100,
+    lastInvoiceUrl: `/api/fleet/billing/passenger?passengerId=${encodeURIComponent(passengerId)}`,
+  };
+}
+
 app.get("/api/fleet/dashboard", async (req, res) => {
   if (!isDbConnected()) return res.json(defaultFleetDashboard);
   try {
@@ -1033,6 +1082,41 @@ app.get("/api/fleet/maintenance", async (req, res) => {
   } catch (err) {
     console.error("Fleet maintenance error:", err);
     res.json(defaultFleetMaintenance.map((m, i) => ({ _id: `mock-m-${i}`, ...m })));
+  }
+});
+
+app.post("/api/fleet/maintenance", async (req, res) => {
+  const b = req.body || {};
+  const payload = {
+    vehiclePlate: String(b.vehiclePlate || "").trim(),
+    type: String(b.type || "Service"),
+    date: String(b.date || new Date().toISOString().slice(0, 10)),
+    description: String(b.description || ""),
+    status: String(b.status || "scheduled"),
+    cost: b.cost != null && b.cost !== "" ? Number(b.cost) : null,
+  };
+  if (!payload.vehiclePlate) {
+    return res.status(400).json({ message: "vehiclePlate is required." });
+  }
+  if (!isDbConnected()) {
+    return res.status(503).json({ message: "Database unavailable." });
+  }
+  try {
+    await ensureFleetExtendedSeed();
+    const row = await FleetMaintenance.create(payload);
+    await logFleetActivity({
+      action: "maintenance_recorded",
+      summary: `${payload.type} scheduled for ${payload.vehiclePlate}`,
+      actorUserId: String(b.recordedBy || req.headers["x-actor-user-id"] || "user-entity-1"),
+      targetType: "maintenance",
+      targetId: row._id?.toString(),
+      meta: { vehiclePlate: payload.vehiclePlate, status: payload.status },
+    });
+    const o = row.toObject ? row.toObject() : row;
+    return res.status(201).json({ ...o, id: o._id?.toString() });
+  } catch (err) {
+    console.error("Fleet maintenance create error:", err);
+    return res.status(500).json({ message: "Failed to create maintenance record." });
   }
 });
 
@@ -1447,28 +1531,47 @@ app.put("/api/fleet/settings", (req, res) => {
   res.json(fleetSystemSettings);
 });
 
-app.get("/api/fleet/vehicles/public", (req, res) => {
-  const limited = defaultFleetVehicles.map((v) => ({
-    plateNumber: v.plateNumber,
-    model: v.model,
-    availability: v.status === "active" ? "Available" : "Limited",
-  }));
-  res.json({ vehicles: limited, notice: "Guest view — limited public information (BRD §3.5)" });
+app.get("/api/fleet/vehicles/public", async (req, res) => {
+  const notice =
+    "Guest view — limited public information only. Booking and trip management are not available.";
+  try {
+    if (!isDbConnected()) {
+      const limited = dedupeVehiclesByPlate(defaultFleetVehicles.map(mapFleetVehicleToPublic));
+      return res.json({ vehicles: limited, notice });
+    }
+    await ensureFleetSeed();
+    const list = await FleetVehicle.find().lean();
+    const mapped = list.map((v) => mapFleetVehicleToPublic(v)).filter((v) => v.plateNumber);
+    return res.json({ vehicles: dedupeVehiclesByPlate(mapped), notice });
+  } catch (err) {
+    console.error("Fleet public vehicles error:", err);
+    const limited = dedupeVehiclesByPlate(defaultFleetVehicles.map(mapFleetVehicleToPublic));
+    res.json({ vehicles: limited, notice });
+  }
 });
 
-app.get("/api/fleet/billing/passenger", (req, res) => {
-  const passengerId = req.query.passengerId || "user-passenger-1";
-  res.json({
-    passengerId,
-    currency: "USD",
-    lines: [
-      { id: "b1", date: "2025-03-10", description: "Ride SF → SFO", amount: 24.5, status: "paid" },
-      { id: "b2", date: "2025-03-08", description: "Ride Oakland → Berkeley", amount: 18.0, status: "paid" },
-      { id: "b3", date: "2025-03-15", description: "Scheduled ride (pending)", amount: 0, status: "pending" },
-    ],
-    balanceDue: 0,
-    lastInvoiceUrl: "/api/fleet/billing/passenger",
-  });
+app.get("/api/fleet/billing/passenger", async (req, res) => {
+  const passengerId = String(req.query.passengerId || "user-passenger-1");
+  try {
+    if (!isDbConnected()) {
+      const rows = sampleTripsForSeed
+        .filter((t) => t.passengerId === passengerId)
+        .map((t, i) => ({ ...t, id: `seed-${passengerId}-${i}` }));
+      return res.json(buildPassengerBillingPayload(passengerId, rows));
+    }
+    await ensureDriverSeed();
+    const list = await Trip.find({ passengerId }).sort({ date: -1 }).limit(80).lean();
+    return res.json(buildPassengerBillingPayload(passengerId, list));
+  } catch (err) {
+    console.error("Fleet passenger billing error:", err);
+    return res.status(500).json({
+      message: "Failed to load billing",
+      passengerId,
+      currency: "USD",
+      lines: [],
+      balanceDue: 0,
+    });
+  }
 });
 
 app.get("/api/fleet/trips/passenger", async (req, res) => {

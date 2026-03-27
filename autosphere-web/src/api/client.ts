@@ -1705,6 +1705,26 @@ export const api = {
     }),
   getFleetDrivers: () => get<FleetDriverItem[]>('/api/fleet/drivers'),
   getFleetMaintenance: () => get<FleetMaintenanceItem[]>('/api/fleet/maintenance'),
+  createFleetMaintenance: (body: {
+    vehiclePlate: string
+    type?: string
+    date?: string
+    description?: string
+    status?: string
+    cost?: number | null
+    recordedBy?: string
+  }) =>
+    fetch(`${API_BASE}/api/fleet/maintenance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText)
+        throw new Error(parseErrorResponse(text, res.status))
+      }
+      return res.json() as Promise<FleetMaintenanceItem>
+    }),
   getFleetReports: () => get<FleetReportItem[]>('/api/fleet/reports'),
   getFleetOrganizations: () => get<FleetOrganizationItem[]>('/api/fleet/organizations'),
   getFleetRoles: () => get<FleetRoleItem[]>('/api/fleet/roles'),

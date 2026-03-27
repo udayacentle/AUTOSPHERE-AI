@@ -50,3 +50,32 @@
   background: rgba(234, 179, 8, 0.2);
   color: var(--warning, #eab308);
 }
+
+.fleet-maintenance-form {
+  margin-top: 0.5rem;
+}
+
+.fleet-maintenance-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.fleet-maintenance-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.fleet-maintenance-form input,
+.fleet-maintenance-form select {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+  background: var(--bg-elevated, #fff);
+  color: var(--text-primary);
+  min-width: 160px;
+}
