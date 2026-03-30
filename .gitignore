@@ -21,6 +21,7 @@ pnpm-debug.log*
 
 # Secrets — never commit
 *.pem
+*.ppk
 
 # Editor and OS
 .vscode/*
