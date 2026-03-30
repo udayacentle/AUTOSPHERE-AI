@@ -19,6 +19,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# Secrets — never commit
+*.pem
+
 # Editor and OS
 .vscode/*
 !.vscode/extensions.json

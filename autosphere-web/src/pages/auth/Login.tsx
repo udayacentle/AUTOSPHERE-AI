@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useI18n } from '../../i18n/context'
 import { loadSavedLoginUsernames, rememberLoginUsername } from './loginUsernameStorage'
 import { LoginUsernameField } from './LoginUsernameField'
+import { API_BASE } from '../../config/api'
 import './Auth.css'
 import './Login.css'
 
@@ -78,7 +79,7 @@ export default function Login() {
     }
     setLoading(true)
     try {
-      const res = await fetch('/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: trimmed, password }),
@@ -109,7 +110,7 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      window.location.assign('/auth/google/start')
+      window.location.assign(`${API_BASE}/auth/google/start`)
     } catch {
       setError(t('auth.errorServer'))
       setLoading(false)

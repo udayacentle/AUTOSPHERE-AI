@@ -1,4 +1,4 @@
-const API_BASE = '' // use Vite proxy in dev; set in production if needed
+import { API_BASE } from '../config/api'
 
 export interface DashboardData {
   driver: { id: string; name: string; email: string } | null
