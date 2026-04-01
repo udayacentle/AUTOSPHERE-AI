@@ -66,12 +66,6 @@ export default function Layout() {
         : null
   void fleetRoleTick
 
-  // On reload: behave like clicking the AutoSphere AI logo — go to welcome page
-  useEffect(() => {
-    if (location.pathname.startsWith('/app') && location.pathname !== '/app') {
-      navigate('/app', { replace: true })
-    }
-  }, []) // run once on mount (reload = fresh mount)
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY) as 'dark' | 'light' | null

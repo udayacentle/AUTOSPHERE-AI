@@ -102,6 +102,7 @@ const en = {
     endLocation: 'End',
     score: 'Score',
     quickAccess: 'Quick access',
+    quickAccessLiveCounts: 'Live counts from API',
     showingSampleData: 'Showing sample data (backend offline). Start the backend for live data.',
     usersTitle: 'Users',
     usersSubtitle: 'Fleet users and RBAC roles',
@@ -920,6 +921,8 @@ const en = {
       trips: 'Trips',
       users: 'Users',
       permissionsMatrix: 'Permissions Matrix',
+      alerts: 'Alerts & Notifications',
+      fuelManagement: 'Fuel Management',
     },
   },
   auth: {
@@ -1226,6 +1229,7 @@ const es = {
     endLocation: 'Fin',
     score: 'Puntuación',
     quickAccess: 'Acceso rápido',
+    quickAccessLiveCounts: 'Recuentos en vivo (API)',
     showingSampleData: 'Se muestran datos de ejemplo (backend desconectado). Inicie el backend para datos en vivo.',
   },
   welcome: {
@@ -1977,6 +1981,10 @@ const es = {
       organizations: 'Organizaciones (Admin)',
       roles: 'Roles',
       trips: 'Viajes',
+      users: 'Usuarios',
+      permissionsMatrix: 'Matriz de permisos',
+      alerts: 'Alertas y notificaciones',
+      fuelManagement: 'Gestión de combustible',
     },
   },
   auth: {

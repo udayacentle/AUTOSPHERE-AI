@@ -71,6 +71,27 @@
   max-width: none;
 }
 
+.fleet-quick-access-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.fleet-quick-access-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.fleet-quick-access-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
 .fleet-dashboard-sections h3 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
@@ -86,7 +107,10 @@
 .fleet-dashboard-link-card {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 200px;
+  flex: 1 1 200px;
   padding: 0.75rem 1rem;
   background: var(--bg-elevated, #f0f1f3);
   border-radius: 8px;
@@ -108,4 +132,19 @@
 
 .fleet-dashboard-link-title {
   font-size: 0.95rem;
+  flex: 1;
+  text-align: left;
+}
+
+.fleet-dashboard-link-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  min-width: 2rem;
+  text-align: right;
+}
+
+.fleet-dashboard-link-card:hover .fleet-dashboard-link-count {
+  color: #fff;
 }

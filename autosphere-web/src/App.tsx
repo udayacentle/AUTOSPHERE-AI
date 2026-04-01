@@ -14,7 +14,7 @@ import AIAssistantLayout from './components/AIAssistantLayout'
 import FleetLayout from './components/FleetLayout'
 import Landing from './pages/Landing'
 import Welcome from './pages/Welcome'
-import PlatformHome from './pages/PlatformHome'
+import { getBrdDefaultChild } from './config/brdDefaultRoutes'
 import Splash from './pages/auth/Splash'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
@@ -207,7 +207,7 @@ function App() {
       <Route path="/app" element={<Layout />}>
         <Route index element={<Welcome />} />
         <Route path="driver" element={<DriverLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('driver')} replace />} />
           <Route path="authentication" element={<Suspense fallback={<LoadingFallback />}><Authentication /></Suspense>} />
           <Route path="onboarding" element={<Suspense fallback={<LoadingFallback />}><Onboarding /></Suspense>} />
           <Route path="dashboard" element={<Suspense fallback={<LoadingFallback />}><Dashboard /></Suspense>} />
@@ -236,7 +236,7 @@ function App() {
           <Route path="settings" element={<Suspense fallback={<LoadingFallback />}><Settings /></Suspense>} />
         </Route>
         <Route path="insurance" element={<InsuranceLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('insurance')} replace />} />
           <Route path="insurance-admin-login" element={<Suspense fallback={<LoadingFallback />}><InsuranceAdminLogin /></Suspense>} />
           <Route path="portfolio-overview-dashboard" element={<Suspense fallback={<LoadingFallback />}><PortfolioOverviewDashboard /></Suspense>} />
           <Route path="real-time-risk-monitor" element={<Suspense fallback={<LoadingFallback />}><RealTimeRiskMonitor /></Suspense>} />
@@ -252,7 +252,7 @@ function App() {
           <Route path="api-integration-settings" element={<Suspense fallback={<LoadingFallback />}><APIIntegrationSettings /></Suspense>} />
         </Route>
         <Route path="dealer" element={<DealerLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('dealer')} replace />} />
           <Route path="dealer-login-dashboard" element={<Suspense fallback={<LoadingFallback />}><DealerLoginDashboard /></Suspense>} />
           <Route path="inventory-management" element={<Suspense fallback={<LoadingFallback />}><InventoryManagement /></Suspense>} />
           <Route path="add-edit-vehicle" element={<Suspense fallback={<LoadingFallback />}><AddEditVehicle /></Suspense>} />
@@ -269,7 +269,7 @@ function App() {
           <Route path="market-trend-insights" element={<Suspense fallback={<LoadingFallback />}><MarketTrendInsights /></Suspense>} />
         </Route>
         <Route path="sales" element={<SalesLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('sales')} replace />} />
           <Route path="sales-dashboard" element={<Suspense fallback={<LoadingFallback />}><SalesDashboard /></Suspense>} />
           <Route path="lead-assignment-scoring" element={<Suspense fallback={<LoadingFallback />}><LeadAssignmentScoring /></Suspense>} />
           <Route path="customer-interaction-logs" element={<Suspense fallback={<LoadingFallback />}><CustomerInteractionLogs /></Suspense>} />
@@ -280,7 +280,7 @@ function App() {
           <Route path="target-achievement-tracker" element={<Suspense fallback={<LoadingFallback />}><TargetAchievementTracker /></Suspense>} />
         </Route>
         <Route path="technician" element={<TechnicianLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('technician')} replace />} />
           <Route path="technician-login" element={<Suspense fallback={<LoadingFallback />}><TechnicianLogin /></Suspense>} />
           <Route path="job-queue-dashboard" element={<Suspense fallback={<LoadingFallback />}><JobQueueDashboard /></Suspense>} />
           <Route path="vehicle-diagnostic-digital-twin" element={<Suspense fallback={<LoadingFallback />}><VehicleDiagnosticDigitalTwin /></Suspense>} />
@@ -294,7 +294,7 @@ function App() {
           <Route path="earnings-summary" element={<Suspense fallback={<LoadingFallback />}><EarningsSummary /></Suspense>} />
         </Route>
         <Route path="property" element={<PropertyLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('property')} replace />} />
           <Route path="property-admin-login" element={<Suspense fallback={<LoadingFallback />}><PropertyAdminLogin /></Suspense>} />
           <Route path="property-dashboard" element={<Suspense fallback={<LoadingFallback />}><PropertyDashboard /></Suspense>} />
           <Route path="parking-utilization-heatmap" element={<Suspense fallback={<LoadingFallback />}><ParkingUtilizationHeatmap /></Suspense>} />
@@ -308,7 +308,7 @@ function App() {
           <Route path="carbon-impact-dashboard" element={<Suspense fallback={<LoadingFallback />}><CarbonImpactDashboard /></Suspense>} />
         </Route>
         <Route path="government" element={<GovernmentLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('government')} replace />} />
           <Route path="regulator-login" element={<Suspense fallback={<LoadingFallback />}><RegulatorLogin /></Suspense>} />
           <Route path="national-vehicle-overview" element={<Suspense fallback={<LoadingFallback />}><NationalVehicleOverview /></Suspense>} />
           <Route path="compliance-monitoring-dashboard" element={<Suspense fallback={<LoadingFallback />}><ComplianceMonitoringDashboard /></Suspense>} />
@@ -323,7 +323,7 @@ function App() {
           <Route path="export-reporting-tools" element={<Suspense fallback={<LoadingFallback />}><ExportReportingTools /></Suspense>} />
         </Route>
         <Route path="ai-admin" element={<AIAdminLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('ai-admin')} replace />} />
           <Route path="super-admin-dashboard" element={<Suspense fallback={<LoadingFallback />}><SuperAdminDashboard /></Suspense>} />
           <Route path="user-role-management" element={<Suspense fallback={<LoadingFallback />}><UserRoleManagement /></Suspense>} />
           <Route path="ai-model-monitoring" element={<Suspense fallback={<LoadingFallback />}><AIModelMonitoring /></Suspense>} />
@@ -338,7 +338,7 @@ function App() {
           <Route path="billing-subscription-management" element={<Suspense fallback={<LoadingFallback />}><BillingSubscriptionManagement /></Suspense>} />
         </Route>
         <Route path="analytics" element={<AnalyticsLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('analytics')} replace />} />
           <Route path="global-performance-dashboard" element={<Suspense fallback={<LoadingFallback />}><GlobalPerformanceDashboard /></Suspense>} />
           <Route path="mobility-score-distribution" element={<Suspense fallback={<LoadingFallback />}><MobilityScoreDistribution /></Suspense>} />
           <Route path="vehicle-health-trends" element={<Suspense fallback={<LoadingFallback />}><VehicleHealthTrends /></Suspense>} />
@@ -351,7 +351,7 @@ function App() {
           <Route path="ai-model-comparison-dashboard" element={<Suspense fallback={<LoadingFallback />}><AIModelComparisonDashboard /></Suspense>} />
         </Route>
         <Route path="ai-assistant" element={<AIAssistantLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('ai-assistant')} replace />} />
           <Route path="ai-chat-interface" element={<Suspense fallback={<LoadingFallback />}><AIChatInterface /></Suspense>} />
           <Route path="voice-assistant-screen" element={<Suspense fallback={<LoadingFallback />}><VoiceAssistantScreen /></Suspense>} />
           <Route path="predictive-suggestions-panel" element={<Suspense fallback={<LoadingFallback />}><PredictiveSuggestionsPanel /></Suspense>} />
@@ -359,7 +359,7 @@ function App() {
           <Route path="ai-explanation-screen" element={<Suspense fallback={<LoadingFallback />}><AIExplanationScreen /></Suspense>} />
         </Route>
         <Route path="fleet" element={<FleetLayout />}>
-          <Route index element={<PlatformHome />} />
+          <Route index element={<Navigate to={getBrdDefaultChild('fleet')} replace />} />
           <Route path="dashboard" element={<Suspense fallback={<LoadingFallback />}><FleetDashboard /></Suspense>} />
           <Route path="vehicles" element={<Suspense fallback={<LoadingFallback />}><FleetVehicles /></Suspense>} />
           <Route path="tracking" element={<Suspense fallback={<LoadingFallback />}><FleetTracking /></Suspense>} />

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { PLATFORMS } from '../config/platforms'
+import { getBrdDefaultChild } from '../config/brdDefaultRoutes'
 import { useI18n } from '../i18n/context'
 import './Welcome.css'
 
@@ -28,7 +29,7 @@ export default function Welcome() {
           {PLATFORMS.map(({ path, icon, screens }) => (
             <Link
               key={path}
-              to={`/app/${path}`}
+              to={`/app/${path}/${getBrdDefaultChild(path)}`}
               className="welcome-card"
             >
               <span className="welcome-card-icon">{icon}</span>
