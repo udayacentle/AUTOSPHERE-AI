@@ -77,12 +77,19 @@ export default function Login() {
       setError(t('auth.errorPasswordRequired'))
       return
     }
+    if (import.meta.env.PROD && !API_BASE) {
+      setError(t('auth.errorServer'))
+      return
+    }
     setLoading(true)
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(() => controller.abort(), 20000)
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: trimmed, password }),
+        signal: controller.signal,
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -99,9 +106,10 @@ export default function Login() {
         }
       }
       navigate('/app')
-    } catch (err) {
+    } catch {
       setError(t('auth.errorServer'))
     } finally {
+      window.clearTimeout(timeoutId)
       setLoading(false)
     }
   }

@@ -9,7 +9,8 @@ function resolveApiBase(): string {
       h === 'a-autosphere-ai.s3-website-us-east-1.amazonaws.com' ||
       h === 'autosphere-ai.s3-website-us-east-1.amazonaws.com'
     ) {
-      return 'http://98.93.80.228:3000'
+      // Must match EC2 public IP + port; update when IP changes. Prefer VITE_API_BASE_URL at build time.
+      return 'http://100.53.242.8:3000'
     }
   }
   return ''
